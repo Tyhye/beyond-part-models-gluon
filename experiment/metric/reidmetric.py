@@ -32,7 +32,8 @@ class ReID_Metric(EvalMetric):
         By default include all labels.
     """
 
-    def __init__(self, isnorm=True, name='CMC&mAP', output_names=None, label_names=None):
+    def __init__(self, isnorm=True, name='CMC&mAP',
+                 output_names=None, label_names=None):
         self.isnorm = isnorm
         self.query_features = []
         self.query_labels = []
@@ -41,7 +42,8 @@ class ReID_Metric(EvalMetric):
         self.gallery_labels = []
         self.gallery_cams = []
         # self._kwargs = kwargs
-        super(ReID_Metric, self).__init__(name=name, output_names=output_names,
+        super(ReID_Metric, self).__init__(name=name,
+                                          output_names=output_names,
                                           label_names=label_names)
 
     def reset(self):
@@ -169,6 +171,8 @@ class ReID_Metric(EvalMetric):
             return (self.name, self.reidmetric)
 
 # Evaluate function
+
+
 def evaluate_oneitem(qf, ql, qc, gf, gl, gc):
     query = qf
     score = np.dot(gf, query)
@@ -187,6 +191,8 @@ def evaluate_oneitem(qf, ql, qc, gf, gl, gc):
     return CMC_tmp
 
 # compute map
+
+
 def compute_mAP_(index, good_index, junk_index):
     ap = 0
     cmc = np.zeros(len(index))
