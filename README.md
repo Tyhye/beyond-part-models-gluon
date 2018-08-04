@@ -22,4 +22,7 @@ The `PCBRPPNet` is the implementation of the **beyond part model**.
 Params `withpcb`, `withrpp` and `feature_shared_weight` are designed for the different situation.
 
 ### process
-
+I defined two kind of processor to control the processes of the training and testing.
+We could implement function for our own experiments.
++ `epochprocessor.py` is designed for using *epoch* to control the number of training times 
++ `iterprocessor.py` is designed for using *iter* to control the number of training times 
