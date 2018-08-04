@@ -1,5 +1,5 @@
 # beyond-part-models-gluon
-Implementation of &lt Beyond Part Models: Person Retrieval with Refined Part Pooling &rt, using gluon(mxnet)
+Implementation of &lt;Beyond Part Models: Person Retrieval with Refined Part Pooling&rt;, using gluon(mxnet)
 
 ## Codes Instruction 
 I will introduce my code in this part.
