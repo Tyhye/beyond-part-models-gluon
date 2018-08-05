@@ -2,13 +2,13 @@
 Implementation of &lt;Beyond Part Models: Person Retrieval with Refined Part Pooling&gt;, using gluon(mxnet)
 
 ## Memo
-[x] Model Implementation
-[x] Metric Coding.
-[x] Data Loading.
-[x] Result Saving.
-[x] Process Control.
-[ ] Train Process.
-[ ] Show Result.
+* [x] Model Implementation
+* [x] Metric Coding.
+* [x] Data Loading.
+* [x] Result Saving.
+* [x] Process Control.
+* [ ] Train Process.
+* [ ] Show Result.
 
 ## Result
 
