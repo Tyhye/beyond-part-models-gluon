@@ -1,7 +1,21 @@
 # beyond-part-models-gluon
 Implementation of &lt;Beyond Part Models: Person Retrieval with Refined Part Pooling&gt;, using gluon(mxnet)
 
-## Codes Instruction 
+## Memo
+[x] Model Implementation
+[x] Metric Coding.
+[x] Data Loading.
+[x] Result Saving.
+[x] Process Control.
+[ ] Train Process.
+[ ] Show Result.
+
+## Result
+
+## Usage
+
+
+## Note
 I will introduce my code in this part.
 The `experiment` contains all scripts used for experiments.
 
