@@ -1,19 +1,20 @@
-# beyond-part-models-gluon
-Implementation of &lt;Beyond Part Models: Person Retrieval with Refined Part Pooling&gt;, using gluon(mxnet)
+#!/usr/bin/env python 
+# -*- code:utf-8 -*- 
+'''
+ @Author: tyhye.wang 
+ @Date: 2018-08-05 10:14:10 
+ @Last Modified by:   tyhye.wang 
+ @Last Modified time: 2018-08-05 10:14:10 
+'''
 
-## Memo
-* [x] Model Implementation
-* [x] Metric Coding.
-* [x] Data Loading.
-* [x] Result Saving.
-* [x] Process Control.
-* [ ] Train Process.
-* [ ] Show Result.
+import docopt 
+import time
+import os
+import logging
 
-## Result
 
-## Usage
-```
+docstr = """Train <Beyond Part Models: Person Retrieval with Refined Part Pooling>.
+
 Usage: 
     python main.py [options]
     python main.py --withpcb [options]
@@ -60,37 +61,13 @@ Test Data Options:
     --galleryIMpath=<str>       Gallery sketch images path prefix [default: datas/Market1501/]
     
 Learning Rate Options:
-    --learning_rate=<float>     Learning rate for training process [default: 0.01]
-    --base_not_train            If do not train base network.
+    --learning_rate=<float>     Learning rate for training process [default: 0.01]      
+    --base_not_train            If don't train base network.
     --base_lr_scale=<float>     Learing rate scale rate for the base network [default: 0.1]
     --pcb_not_train             If the pcb module or the tail in `IDE` are not trained.
     --pcb_lr_scale=<float>      Learing rate scale rate for the pcb module or the tail. [default: 1.0]
-    --rpp_not_train             If do not train the rpp module.
+    --rpp_not_train             If don't train the rpp module.
     --rpp_lr_scale=<float>      Learing rate scale rate for the rpp module. [default: 1.0]
-```
 
-## Note
-I will introduce my code in this part.
-The `experiment` contains all scripts used for experiments.
+"""
 
-### data
-In the `data` package, I put the scripts about *loading data* and *save snapshots*.
-+ `textdataset.py` defines the TextDataset, which define the dataset defined by a text file.
-+ `transform.py` defines the classes Transformer. 
-    - `ListTransformer` is used for training.
-    - `Market1501_Transformer` is used for market_1501 and duke testing.
-+ `saver.py` defines a object for saving snapshots, only when the result is better.
-
-### metric
-In the `reidmetric.py`, which define a metric class designed for Re-ID.
-
-### model
-The `model` package contains the design of the model structures.
-The `PCBRPPNet` is the implementation of the **beyond part model**.
-Params `withpcb`, `withrpp` and `feature_shared_weight` are designed for the different situation.
-
-### process
-I defined two kind of processor to control the processes of the training and testing.
-We could implement function for our own experiments.
-+ `epochprocessor.py` is designed for using *epoch* to control the number of training times 
-+ `iterprocessor.py` is designed for using *iter* to control the number of training times 
