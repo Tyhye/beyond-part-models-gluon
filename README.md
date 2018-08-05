@@ -21,33 +21,33 @@ Usage:
 
 General Options:
     -h, --help                  Print this message
-    --device=<str>              Device for runnint the model [default: cuda:0]
-    --log=<str>                 File path for saving log message. 
-
+    --logfile=<str>             File path for saving log message. 
+    --device_type=<str>         Device Type for running the model [default: cpu]
+    --device_id=<int>           Device ID for running the model [default: 0]
+    
 Network Options:
     --basenet_type=<str>        BaseNet type for Model [default: resnet50]
     --classes_num=<int>         Output classes number of the network [default: 751]
-    --feature_channels=<int>    Feature channels of the network [default: 256]
+    --feature_channels=<int>    Feature channels of the network [default: 512]
     --partnum=<int>             The number of the pcb parts. [default: 6]
     --feature_weight_share      If the six partnum share weights.
-
-Snap and Pretrain Options:
-    --Snap=<str>                Model state dict file path [default: saved/]
-    --basepretrained            If the base network pretrained on ImageNet [default: True]
+    --base_not_pretrain         If the base network don't pretrained on ImageNet
     --pretrain_path=<str>       Path to pretrained model. 
 
 Training Setting Options:
-    --resize_size=<tuple>       Image resize size tuple (height, width) [default: (384, 128)]
-    --crop_size=<tuple>         Image crop size tuple (height, width) [default: (384, 128)]
-    --batchsize=<int>           Batchsize [default: 8]
-    
-    --Optim=<str>               Optimizer Type [default: SGD]
+    --Optim=<str>               Optimizer Type [default: sgd]
     --LRpolicy=<str>            Learning rate policy [default: multistep]
     --Stones=<str>              Step stone for multistep policy [default: [40,]]
 
     --max_epochs=<int>          Max Train epochs [default: 60]
     --log_epochs=<int>          Log step stone [default: 5]
     --snap_epochs=<int>         Snap step stone [default: 5]
+    --Snap=<str>                Model state dict file path [default: saved/]
+
+Data Options:
+    --resize_size=<tuple>       Image resize size tuple (height, width) [default: (384, 128)]
+    --crop_size=<tuple>         Image crop size tuple (height, width) [default: (384, 128)]
+    --batchsize=<int>           Batchsize [default: 8]
 
 Train Data Options:
     --trainList=<str>           Train files list txt [default: datas/Market1501/train.txt]
@@ -61,12 +61,19 @@ Test Data Options:
     
 Learning Rate Options:
     --learning_rate=<float>     Learning rate for training process [default: 0.01]
-    --base_not_train            If do not train base network.
+    --weight_decay=<float>      Weight decay for training process [default: 0.0005]
+    
+    --base_not_train            If don't train base network.
     --base_lr_scale=<float>     Learing rate scale rate for the base network [default: 0.1]
-    --pcb_not_train             If the pcb module or the tail in `IDE` are not trained.
-    --pcb_lr_scale=<float>      Learing rate scale rate for the pcb module or the tail. [default: 1.0]
-    --rpp_not_train             If do not train the rpp module.
-    --rpp_lr_scale=<float>      Learing rate scale rate for the rpp module. [default: 1.0]
+    
+    --tail_not_train            If don't train tail module, when w/o pcb and w/o rpp.
+    --tail_lr_scale=<float>     Learing rate scale rate for the tail module.
+    
+    --pcb_not_train             If the pcb module are not trained.
+    --pcb_lr_scale=<float>      Learing rate scale rate for the pcb module.
+    
+    --rpp_not_train             If don't train the rpp module.
+    --rpp_lr_scale=<float>      Learing rate scale rate for the rpp module.
 ```
 
 ## Note
