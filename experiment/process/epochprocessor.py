@@ -10,6 +10,28 @@ This file refers to the https://github.com/pytorch/tnt/blob/master/torchnet/engi
 
 '''
 
+'''
+Train process:
+    |=>on_start
+    |=>for epoch in epoches:
+    |=====>on_start_epoch: <----------+
+    |=====>for iter in iters: <---+   |
+    |=========>on_sample          |   |
+    |=========>state[process]     |   |
+    |=========>on_forward         |   |
+    |=========>on_end_iter -------+   |
+    |=====>on_end_epoch --------------+
+    |=>on_end                     
+
+Test process:
+    |=>on_start_epoch: 
+    |=>for iter in iters: <---+
+    |=====>on_sample          |
+    |=====>state[process]     |
+    |=====>on_forward         |
+    |=====>on_end_iter -------+ 
+    |=>on_end_epoch                     
+'''
 
 class EpochProcessor(object):
     def __init__(self):
@@ -57,7 +79,7 @@ class EpochProcessor(object):
             'train': False,
         }
 
-        self.hook('on_start', state)
+        self.hook('on_start_epoch', state)
         for sample in state['iterator']:
             state['sample'] = sample
             self.hook('on_sample', state)
@@ -70,4 +92,4 @@ class EpochProcessor(object):
             state['loss'] = None
 
             state['t'] += 1
-        self.hook('on_end', state)
+        self.hook('on_end_epoch', state)
