@@ -52,7 +52,7 @@ Training Setting Options:
 Data Options:
     --resize_size=<tuple>       Image resize size tuple (height, width) [default: (384, 128)]
     --crop_size=<tuple>         Image crop size tuple (height, width) [default: (384, 128)]
-    --batchsize=<int>           Batchsize [default: 8]
+    --batchsize=<int>           Batchsize [default: 32]
 
 Train Data Options:
     --trainList=<str>           Train files list txt [default: datas/Market1501/train.txt]
@@ -131,8 +131,10 @@ def main():
         cfg.gamma = float(args['--gamma'])
 
     cfg.max_peochs = int(args['--max_epochs'])
-    cfg.log_epochs = int(args['--log_epochs'])
-    cfg.snap_epochs = int(args['snap_epochs'])
+    cfg.val_epochs = int(args['--val_epochs'])
+    cfg.snap_epochs = int(args['--snap_epochs'])
+    if cfg.snap_epochs % cfg.val_epochs != 0:
+        raise "Because the saver should use the val result, so the snap_epochs must be times of val_epochs"
     cfg.snapdir = args['--Snap']
     if not os.path.exists(cfg.snapdir):
         os.makedirs(cfg.snapdir)

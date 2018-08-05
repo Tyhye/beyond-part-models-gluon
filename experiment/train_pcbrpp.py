@@ -29,6 +29,7 @@ from model.pcbrpp import PCBRPPNet
 from scheduler.listscheduler import MultiStepListScheduler
 from process.epochprocessor import EpochProcessor
 
+
 def train_pcbrpp(cfg, logprint=print):
     cfg.ctx = mx.Context(cfg.device_type, cfg.device_id)
 
@@ -145,9 +146,9 @@ def train_pcbrpp(cfg, logprint=print):
     softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
     loss_metric = Loss()
     if cfg.partnum is not None:
-        train_accuracy_metrics = [Accuracy() for _ in range(part_num)]
+        train_accuracy_metrics = [Accuracy() for _ in range(cfg.partnum)]
     else:
-        train_accracy_metric = Accuracy()
+        train_accuracy_metric = Accuracy()
     reid_metric = ReID_Metric(isnorm=True)
 
     save_name = ""
@@ -164,38 +165,89 @@ def train_pcbrpp(cfg, logprint=print):
                                       save_name=save_name,
                                       reverse=False)
     # ==========================================================================
+
+    # ==========================================================================
+    # process functions
+    # ==========================================================================
     def reset_metrics():
         loss_metric.reset()
         if cfg.partnum is not None:
-            for train_accuracy_metric in train_accracy_metrics:
-                train_accuracy_metric.reset()
+            for metric in train_accuracy_metrics:
+                metric.reset()
         else:
-            train_accracy_metric.reset()
+            train_accuracy_metric.reset()
         reid_metric.reset()
 
     def on_start(state):
-        pass
+        if state['train']:
+            state['store_iterator'] = state['iterator']
 
     def on_start_epoch(state):
-        pass
-    
+        lr_scheduler.step()
+        reset_metrics()
+        if state['train']:
+            state['iterator'] = tqdm(state['store_iterator'], ncols=80)
+
     def on_sample(state):
         pass
 
     def test_process(sample):
-        pass
-    
+        img, cam, label, ds = sample
+        img = img.as_in_context(cfg.ctx)
+        ID1, Fea1 = Net(img)
+        if cfg.partnum is not None:
+            Fea1 = ndarray.concat(*Fea1, dim=-1)
+        img = img.flip(axis=3)
+        ID2, Fea2 = Net(img)
+        if cfg.partnum is not None:
+            Fea2 = ndarray.concat(*Fea2, dim=-1)
+        reid_metric.update(fea1+fea2, cam, label, ds)
+
     def train_process(sample):
-        pass
-    
+        data, label = sample
+        data = data.as_in_context(cfg.ctx)
+        label = label.as_in_context(cfg.ctx)
+        with autograd.record():
+            ID, Fea = Net(data)
+            if isinstance(ID, list):
+                losses = [softmax_cross_entropy(id_, label) for id_ in ID]
+                loss = ndarray.stack(*losses, axis=0).mean(axis=0)
+            else:
+                loss = softmax_cross_entropy(ID, label)
+        loss.backward()
+        for trainer in trainers:
+            trainer.step(data.shape[0])
+
     def on_forward(state):
-        pass
+        loss_metric.update(None, state['loss'])
+        if cfg.partnum is not None:
+            for metric, id_ in zip(train_accuracy_metrics, ID):
+                metric.update(preds=id_, labels=label)
+        else:
+            train_accuracy_metric.update(preds=ID, labels=label)
 
     def on_end_iter(state):
         pass
-    
+
     def on_end_epoch(state):
-        pass
+        if state['train']:
+            logprint("[Epoch %d] train loss: %.6f" %
+                     (state['epoch'], loss_metric.get()[1]))
+            if cfg.partnum is not None:
+                for idx, metric in enumerate(train_accuracy_metrics):
+                    logprint("[Epoch %d] part No.%d train accuracy: %.2f%%" %
+                             (state['epoch'], idx+1, metric.get()[1]*100))
+            else:
+                logprint("[Epoch %d] train accuracy: %.2f%%" %
+                         (state['epoch'], train_accuracy_metric.get()[1]))
+        if state['epoch'] % cfg.val_epochs == 0:
+            reset_metrics()
+            processor.test(test_process, test_iterator())
+            CMC, mAP = reid_metric.get()[1]
+            logprint("[Epoch %d] CMC1: %.2f%% CMC5: %.2f%% CMC10: %.2f%% CMC20: %.2f%% mAP: %.2f%%" %
+                (state['epoch'], CMC[0]*100, CMC[4]*100, CMC[9]*100, CMC[19]*100, mAP*100))
+            if state['epoch'] % cfg.snap_epochs == 0:
+                net_saver.save(Net, CMC[0])                
 
     def on_end(state):
         pass
@@ -204,10 +256,9 @@ def train_pcbrpp(cfg, logprint=print):
     processor.hooks['on_start'] = on_start
     processor.hooks['on_start_epoch'] = on_start_epoch
     processor.hooks['on_sample'] = on_sample
-    engine.hooks['on_forward'] = on_forward
-    engine.hooks['on_end_iter'] = on_end_epoch
-    engine.hooks['on_end'] = on_end
+    processor.hooks['on_forward'] = on_forward
+    processor.hooks['on_end_iter'] = on_end_epoch
+    processor.hooks['on_end'] = on_end
 
+    processor.train(train_process, train_iterator, cfg.maxepoch)
     
-
-
