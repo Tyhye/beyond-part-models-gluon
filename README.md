@@ -40,7 +40,7 @@ Training Setting Options:
     --Stones=<str>              Step stone for multistep policy [default: [40,]]
 
     --max_epochs=<int>          Max Train epochs [default: 60]
-    --log_epochs=<int>          Log step stone [default: 5]
+    --val_epochs=<int>          Val step stone [default: 5]
     --snap_epochs=<int>         Snap step stone [default: 5]
     --Snap=<str>                Model state dict file path [default: saved/]
 
