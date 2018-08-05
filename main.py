@@ -14,8 +14,6 @@ from docopt import docopt
 from easydict import EasyDict as edict
 import re
 
-import mxnet as mx
-
 from experiment.train_pcbrpp import train_pcbrpp
 
 docstr = """Train <Beyond Part Models: Person Retrieval with Refined Part Pooling>.
@@ -43,7 +41,8 @@ Network Options:
 Training Setting Options:
     --Optim=<str>               Optimizer Type [default: sgd]
     --LRpolicy=<str>            Learning rate policy [default: multistep]
-    --Stones=<str>              Step stone for multistep policy [default: [40,]]
+    --milestones=<list>         Step milestone for multistep policy [default: [40,]]
+    --gamma=<float>             Gamma for multistep policy [default: 0.1]
 
     --max_epochs=<int>          Max Train epochs [default: 60]
     --log_epochs=<int>          Log step stone [default: 5]
@@ -68,15 +67,13 @@ Test Data Options:
 Learning Rate Options:
     --learning_rate=<float>     Learning rate for training process [default: 0.01]
     --weight_decay=<float>      Weight decay for training process [default: 0.0005]
-    
+    --momentum=<float>          Momentum for the SGD Optimizer [default: 0.9]
+
     --base_not_train            If don't train base network.
     --base_lr_scale=<float>     Learing rate scale rate for the base network [default: 0.1]
     
     --tail_not_train            If don't train tail module, when w/o pcb and w/o rpp.
     --tail_lr_scale=<float>     Learing rate scale rate for the tail module.
-    
-    --pcb_not_train             If the pcb module are not trained.
-    --pcb_lr_scale=<float>      Learing rate scale rate for the pcb module.
     
     --rpp_not_train             If don't train the rpp module.
     --rpp_lr_scale=<float>      Learing rate scale rate for the rpp module.
@@ -121,14 +118,17 @@ def main():
         cfg.feautre_weight_share = args['--feature_weight_share']
     else:
         cfg.partnum = None
-        cfg.feautre_weight_share = False
+        cfg.feautre_weight_share = True
     cfg.base_pretrained =  (not args['--base_not_pretrained']) and (args['--pretrain_path'] is None)
     cfg.pretrain_path = args['--pretrain_path']
 
     cfg.optim = args['--Optim']
+    if cfg.optim == 'sgd':
+        cfg.momentum = float(args['momentum'])
     cfg.lrpolicy = args['--LRpolicy']
     if cfg.lrpolicy == "multistep" or cfg.lrpolicy == "multifactor":
-        cfg.stones = eval(args['--Stones'])
+        cfg.milestones = eval(args['--milestones'])
+        cfg.gamma = float(args['--gamma'])
 
     cfg.max_peochs = int(args['--max_epochs'])
     cfg.log_epochs = int(args['--log_epochs'])
@@ -150,19 +150,11 @@ def main():
         if args['--base_lr_scale'] is not None:
             cfg.base_learning_rate *= float(args['--base_lr_scale'])
     
-    if not cfg.withpcb and not cfg.withrpp:
-        cfg.tail_train = not args['--tail_not_train']
-        if cfg.tail_train:
-            cfg.tail_learning_rate = cfg.learning_rate
-            if args['--tail_lr_scale'] is not None:
-                cfg.tail_learning_rate *= float(args['--tail_lr_scale'])
-    
-    if cfg.withpcb:
-        cfg.pcb_train = not args['--pcb_not_train']
-        if cfg.pcb_train:
-            cfg.pcb_learning_rate = cfg.learning_rate
-            if args['--pcb_lr_scale'] is not None:
-                cfg.pcb_learning_rate *= float(args['--pcb_lr_scale'])
+    cfg.tail_train = not args['--tail_not_train']
+    if cfg.tail_train:
+        cfg.tail_learning_rate = cfg.learning_rate
+        if args['--tail_lr_scale'] is not None:
+            cfg.tail_learning_rate *= float(args['--tail_lr_scale'])
     
     if cfg.withrpp:
         cfg.rpp_train = not args['--rpp_not_train']
