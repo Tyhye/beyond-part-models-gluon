@@ -30,7 +30,7 @@ class PCBRPPNet(HybridBlock):
     def __init__(self, basenetwork='resnet50_v2', pretrained="True",
                  feature_channels=512, classes=751,
                  withpcb='True', partnum=6, feature_weight_share=False,
-                 withrpp='True', rpp_feature_channels=512, **kwargs):
+                 withrpp='True', **kwargs):
 
         super(PCBRPPNet, self).__init__(**kwargs)
         basenetwork = eval(basenetwork)
