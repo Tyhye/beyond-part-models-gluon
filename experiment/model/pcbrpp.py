@@ -13,8 +13,8 @@ from mxnet.gluon.block import HybridBlock
 from mxnet.gluon import nn
 import mxnet.initializer as init
 
-from myresnet import resnet18_v1, resnet34_v1, resnet50_v1, resnet101_v1, resnet152_v1
-from myresnet import resnet18_v2, resnet34_v2, resnet50_v2, resnet101_v2, resnet152_v2
+from .myresnet import resnet18_v1, resnet34_v1, resnet50_v1, resnet101_v1, resnet152_v1
+from .myresnet import resnet18_v2, resnet34_v2, resnet50_v2, resnet101_v2, resnet152_v2
 
 
 class PCBRPPNet(HybridBlock):
@@ -42,6 +42,8 @@ class PCBRPPNet(HybridBlock):
         self.part_num = partnum
 
         self.conv = basenetwork(pretrained=pretrained, ctx=cpu())
+        if not pretrained:
+            self.conv.collect_params().initialize(init=init.Xavier(), ctx=cpu())
         self.pool = nn.GlobalAvgPool2D()
 
         if not self.withpcb or self.feature_weight_share:

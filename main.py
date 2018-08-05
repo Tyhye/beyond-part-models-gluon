@@ -14,14 +14,12 @@ from docopt import docopt
 from easydict import EasyDict as edict
 import re
 
-from experiment.train_pcbrpp import train_pcbrpp
-
 docstr = """Train <Beyond Part Models: Person Retrieval with Refined Part Pooling>.
 
 Usage: 
-    python main.py [options]
-    python main.py --withpcb [options]
-    python main.py --withpcb --withrpp [options]
+    main.py [options]
+    main.py --withpcb [options]
+    main.py --withpcb --withrpp [options]
 
 General Options:
     -h, --help                  Print this message
@@ -30,12 +28,12 @@ General Options:
     --device_id=<int>           Device ID for running the model [default: 0]
     
 Network Options:
-    --basenet_type=<str>        BaseNet type for Model [default: resnet50]
+    --basenet_type=<str>        BaseNet type for Model [default: resnet50_v2]
     --classes_num=<int>         Output classes number of the network [default: 751]
     --feature_channels=<int>    Feature channels of the network [default: 512]
     --partnum=<int>             The number of the pcb parts. [default: 6]
     --feature_weight_share      If the six partnum share weights.
-    --base_not_pretrain         If the base network don't pretrained on ImageNet
+    --base_not_pretrained       If the base network don't pretrained on ImageNet
     --pretrain_path=<str>       Path to pretrained model. 
 
 Training Setting Options:
@@ -43,7 +41,7 @@ Training Setting Options:
     --LRpolicy=<str>            Learning rate policy [default: multistep]
     --milestones=<list>         Step milestone for multistep policy [default: [40,]]
     --gamma=<float>             Gamma for multistep policy [default: 0.1]
-
+    
     --max_epochs=<int>          Max Train epochs [default: 60]
     --val_epochs=<int>          Val step stone [default: 5]
     --snap_epochs=<int>         Snap step stone [default: 5]
@@ -56,7 +54,7 @@ Data Options:
 
 Train Data Options:
     --trainList=<str>           Train files list txt [default: datas/Market1501/train.txt]
-    --trainIMpath=<str>         Train sketch images path prefix [default: datas/img_gt/]
+    --trainIMpath=<str>         Train sketch images path prefix [default: datas/Market1501/]
     
 Test Data Options:
     --queryList=<str>           Query files list txt [default: datas/Market1501/query.txt]
@@ -110,27 +108,27 @@ def main():
     cfg.device_type = args['--device_type']
     cfg.device_id = int(args['--device_id'])
     
-    cfg.basenet = eval(args['--basenet_type'])
+    cfg.basenet = args['--basenet_type']
     cfg.classes_num = int(args['--classes_num'])
     cfg.feature_channels = int(args['--feature_channels'])
     if cfg.withpcb:    
         cfg.partnum = int(args['--partnum'])
-        cfg.feautre_weight_share = args['--feature_weight_share']
+        cfg.feature_weight_share = args['--feature_weight_share']
     else:
         cfg.partnum = None
-        cfg.feautre_weight_share = True
+        cfg.feature_weight_share = True
     cfg.base_pretrained =  (not args['--base_not_pretrained']) and (args['--pretrain_path'] is None)
     cfg.pretrain_path = args['--pretrain_path']
 
     cfg.optim = args['--Optim']
     if cfg.optim == 'sgd':
-        cfg.momentum = float(args['momentum'])
+        cfg.momentum = float(args['--momentum'])
     cfg.lrpolicy = args['--LRpolicy']
     if cfg.lrpolicy == "multistep" or cfg.lrpolicy == "multifactor":
         cfg.milestones = eval(args['--milestones'])
         cfg.gamma = float(args['--gamma'])
 
-    cfg.max_peochs = int(args['--max_epochs'])
+    cfg.max_epochs = int(args['--max_epochs'])
     cfg.val_epochs = int(args['--val_epochs'])
     cfg.snap_epochs = int(args['--snap_epochs'])
     if cfg.snap_epochs % cfg.val_epochs != 0:
@@ -140,8 +138,8 @@ def main():
         os.makedirs(cfg.snapdir)
     
     cfg.batchsize = int(args['--batchsize'])
-    cfg.resize_size = int(args['--resize_size'])
-    cfg.crop_size = int(args['--crop_size'])
+    cfg.resize_size = eval(args['--resize_size'])
+    cfg.crop_size = eval(args['--crop_size'])
 
     cfg.learning_rate = float(args['--learning_rate'])
     cfg.weight_decay = float(args['--weight_decay'])
@@ -170,8 +168,9 @@ def main():
     cfg.queryList=args['--queryList']
     cfg.queryIMpath=args['--queryIMpath']
     cfg.galleryList=args['--galleryList']
-    cfg.galleryIMpath=args['galleryIMpath']
+    cfg.galleryIMpath=args['--galleryIMpath']
 
+    from experiment.train_pcbrpp import train_pcbrpp
     train_pcbrpp(cfg, logprint)
 
 

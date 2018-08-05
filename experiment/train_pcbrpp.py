@@ -23,12 +23,13 @@ from mxnet.gluon.data import DataLoader
 from mxnet import autograd
 from mxnet.metric import Loss, Accuracy
 
-from data.transform import ListTransformer, Market1501_Transformer
-from data.textdataset import TextDataset
-from model.pcbrpp import PCBRPPNet
-from scheduler.listscheduler import MultiStepListScheduler
-from process.epochprocessor import EpochProcessor
-
+from .data.transform import ListTransformer, Market1501_Transformer
+from .data.textdataset import TextDataset
+from .data.saver import Best_Evaluation_Saver
+from .model.pcbrpp import PCBRPPNet
+from .scheduler.listscheduler import MultiStepListScheduler
+from .process.epochprocessor import EpochProcessor
+from .metric.reidmetric import ReID_Metric
 
 def train_pcbrpp(cfg, logprint=print):
     cfg.ctx = mx.Context(cfg.device_type, cfg.device_id)
@@ -36,33 +37,30 @@ def train_pcbrpp(cfg, logprint=print):
     # ==========================================================================
     # define train dataset, query dataset and test dataset
     # ==========================================================================
-    traintransformer = ListTransformer(datasetroot=cfg.trainList,
+    traintransformer = ListTransformer(datasetroot=cfg.trainIMpath,
                                        resize_size=cfg.resize_size,
                                        crop_size=cfg.crop_size,
                                        istrain=True)
-    querytransformer = Market1501_Transformer(datasetroot=cfg.queryList,
+    querytransformer = Market1501_Transformer(datasetroot=cfg.queryIMpath,
                                               resize_size=cfg.resize_size,
                                               crop_size=cfg.crop_size,
                                               istrain=False)
-    gallerytransformer = Market1501_Transformer(datasetroot=cfg.queryList,
+    gallerytransformer = Market1501_Transformer(datasetroot=cfg.queryIMpath,
                                                 resize_size=cfg.resize_size,
                                                 crop_size=cfg.crop_size,
                                                 istrain=False)
-    traindataset = TextDataset(txtfilepath='../../Market-1501/dataset/train.txt',
-                               transform=traintransformer),
-    querydataset = TextDataset(txtfilepath='../../Market-1501/dataset/query.txt',
+    traindataset = TextDataset(txtfilepath=cfg.trainList,
+                               transform=traintransformer)
+    querydataset = TextDataset(txtfilepath=cfg.queryList,
                                transform=querytransformer)
-    gallerydataset = TextDataset(txtfilepath='../../Market-1501/dataset/gallery.txt',
+    gallerydataset = TextDataset(txtfilepath=cfg.galleryList,
                                  transform=gallerytransformer)
-    train_iterator = DataLoader(traindataset, num_workers=1,
-                                last_batch='discard', batch_size=cfg.batchsize,
-                                shuffle=True)
-    query_iterator = DataLoader(querydataset, num_workers=1,
-                                last_batch='keep', batch_size=cfg.batchsize,
-                                shuffle=True)
-    gallery_iterator = DataLoader(gallerydataset, num_workers=1,
-                                  last_batch='keep', batch_size=cfg.batchsize,
-                                  shuffle=True)
+    train_iterator = DataLoader(traindataset, num_workers=1, shuffle=True,
+                                last_batch='discard', batch_size=cfg.batchsize)
+    query_iterator = DataLoader(querydataset, num_workers=1,shuffle=True,
+                                last_batch='keep', batch_size=cfg.batchsize)
+    gallery_iterator = DataLoader(gallerydataset, num_workers=1,shuffle=True,
+                                  last_batch='keep', batch_size=cfg.batchsize)
 
     def test_iterator():
         for data in tqdm(query_iterator, ncols=80):
@@ -82,7 +80,7 @@ def train_pcbrpp(cfg, logprint=print):
     # ==========================================================================
     # define model and trainer list, lr_scheduler
     # ==========================================================================
-    Net = PCBRPPNet(basenetwork=cfg.basenet, pretrained=cfg.pretrained,
+    Net = PCBRPPNet(basenetwork=cfg.basenet, pretrained=cfg.base_pretrained,
                     feature_channels=cfg.feature_channels,
                     classes=cfg.classes_num,
                     withpcb=cfg.withpcb, partnum=cfg.partnum,
@@ -97,8 +95,7 @@ def train_pcbrpp(cfg, logprint=print):
     if cfg.base_train:
         base_params = Net.conv.collect_params()
         base_optimizer_params = {'learning_rate': cfg.base_learning_rate,
-                                 'weight_decay': cfg.weight_decay,
-                                 'momentum': cfg.momentum,
+                                 'wd': cfg.weight_decay, 'momentum': cfg.momentum,
                                  'multi_precision': True}
         basetrainer = Trainer(base_params, optimizer=cfg.optim,
                               optimizer_params=base_optimizer_params)
@@ -118,8 +115,7 @@ def train_pcbrpp(cfg, logprint=print):
                 tail_params.update(
                     getattr(Net, 'classifier%d' % (pn+1)).collect_params())
         tail_optimizer_params = {'learning_rate': cfg.tail_learning_rate,
-                                 'weight_decay': cfg.weight_decay,
-                                 'momentum': cfg.momentum,
+                                 'wd': cfg.weight_decay, 'momentum': cfg.momentum,
                                  'multi_precision': True}
         tailtrainer = Trainer(tail_params, optimizer=cfg.optim,
                               optimizer_params=tail_optimizer_params)
@@ -127,8 +123,7 @@ def train_pcbrpp(cfg, logprint=print):
     if cfg.withrpp and cfg.rpp_train:
         rpp_params = Net.rppscore.collect_params()
         rpp_optimizer_params = {'learning_rate': cfg.rpp_learning_rate,
-                                'weight_decay': cfg.weight_decay,
-                                'momentum': cfg.momentum,
+                                'wd': cfg.weight_decay, 'momentum': cfg.momentum,
                                 'multi_precision': True}
         rpptrainer = Trainer(rpp_params, optimizer=cfg.optim,
                              optimizer_params=rpp_optimizer_params)
@@ -165,10 +160,11 @@ def train_pcbrpp(cfg, logprint=print):
                                       save_name=save_name,
                                       reverse=False)
     # ==========================================================================
-
+    logprint(Net)
     # ==========================================================================
     # process functions
     # ==========================================================================
+
     def reset_metrics():
         loss_metric.reset()
         if cfg.partnum is not None:
@@ -179,6 +175,7 @@ def train_pcbrpp(cfg, logprint=print):
         reid_metric.reset()
 
     def on_start(state):
+        pass
         if state['train']:
             state['store_iterator'] = state['iterator']
 
@@ -201,8 +198,8 @@ def train_pcbrpp(cfg, logprint=print):
         ID2, Fea2 = Net(img)
         if cfg.partnum is not None:
             Fea2 = ndarray.concat(*Fea2, dim=-1)
-        reid_metric.update(fea1+fea2, cam, label, ds)
-
+        return None, Fea1+Fea2
+        
     def train_process(sample):
         data, label = sample
         data = data.as_in_context(cfg.ctx)
@@ -217,14 +214,20 @@ def train_pcbrpp(cfg, logprint=print):
         loss.backward()
         for trainer in trainers:
             trainer.step(data.shape[0])
+        return loss, ID
 
     def on_forward(state):
-        loss_metric.update(None, state['loss'])
-        if cfg.partnum is not None:
-            for metric, id_ in zip(train_accuracy_metrics, ID):
-                metric.update(preds=id_, labels=label)
+        if state['train']:
+            img, label = state['sample']
+            loss_metric.update(None, state['loss'])
+            if cfg.partnum is not None:
+                for metric, id_ in zip(train_accuracy_metrics, state['output']):
+                    metric.update(preds=id_, labels=label)
+            else:
+                train_accuracy_metric.update(preds=state['output'], labels=label)
         else:
-            train_accuracy_metric.update(preds=ID, labels=label)
+            img, cam, label, ds = state['sample']
+            reid_metric.update(state['output'], cam, label, ds)
 
     def on_end_iter(state):
         pass
@@ -245,9 +248,9 @@ def train_pcbrpp(cfg, logprint=print):
             processor.test(test_process, test_iterator())
             CMC, mAP = reid_metric.get()[1]
             logprint("[Epoch %d] CMC1: %.2f%% CMC5: %.2f%% CMC10: %.2f%% CMC20: %.2f%% mAP: %.2f%%" %
-                (state['epoch'], CMC[0]*100, CMC[4]*100, CMC[9]*100, CMC[19]*100, mAP*100))
+                     (state['epoch'], CMC[0]*100, CMC[4]*100, CMC[9]*100, CMC[19]*100, mAP*100))
             if state['epoch'] % cfg.snap_epochs == 0:
-                net_saver.save(Net, CMC[0])                
+                net_saver.save(Net, CMC[0])
 
     def on_end(state):
         pass
@@ -257,8 +260,8 @@ def train_pcbrpp(cfg, logprint=print):
     processor.hooks['on_start_epoch'] = on_start_epoch
     processor.hooks['on_sample'] = on_sample
     processor.hooks['on_forward'] = on_forward
-    processor.hooks['on_end_iter'] = on_end_epoch
+    processor.hooks['on_end_iter'] = on_end_iter
+    processor.hooks['on_end_epoch'] = on_end_epoch
     processor.hooks['on_end'] = on_end
 
-    processor.train(train_process, train_iterator, cfg.maxepoch)
-    
+    processor.train(train_process, train_iterator, cfg.max_epochs)
