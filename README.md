@@ -7,7 +7,9 @@ Implementation of &lt;Beyond Part Models: Person Retrieval with Refined Part Poo
 * [x] Data Loading.
 * [x] Result Saving.
 * [x] Process Control.
-* [ ] Train Process.
+* [x] Train Process.
+* [ ] Text Process.
+* [ ] Eval Process.
 * [ ] Show Result.
 
 ## Result
