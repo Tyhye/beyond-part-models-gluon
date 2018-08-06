@@ -102,3 +102,6 @@ I defined two kind of processor to control the processes of the training and tes
 We could implement function for our own experiments.
 + `epochprocessor.py` is designed for using *epoch* to control the number of training times 
 + `iterprocessor.py` is designed for using *iter* to control the number of training times 
+
+
+## Acknowledgement
