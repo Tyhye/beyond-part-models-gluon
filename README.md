@@ -26,8 +26,9 @@ Here we just show some results.
 
 | BS | Network | PCB | PN | RPP | FT | CMC1 | CMC5 | CMC10 | mAP | Note |
 | -- | ------- | --- | -- | --- | -- | ---- | ---- | ----- | --- | ---- |
-| 64 | Resnet50_v2 | w/o | | w/o | | 85.3 | - | - | - | 68.5% | (in paper) |
 | 32 | Resnet50_v2 | w/o | | w/o | | 89.76 | 96.20 | 97.51 | 75.22 | (512dim) |
+| 64 | Resnet50_v2 | w/o | | w/o | | 85.3 | - | - | - | 68.5 | (in paper) |
+| 32 | Resnet50_v2 | w/o | | w/o | | 89.70 | 95.87 | 97.36 | 74.30 | |
 | 32 | Resnet50_v1 | w/o | | w/o | | - | - | - | - | |
 | 64 | Resnet50_v2 | w | 6 | w/o | | 92.3 | 97.2 | 98.2 | 77.4 | (in paper) |
 | 32 | Resnet50_v2 | w | 6 | w/o | | - | - | - | - | |
