@@ -59,7 +59,7 @@ class PCBRPPNet(HybridBlock):
             self.feature_.initialize(init=init.Zero(), ctx=cpu())
             self.classifier.collect_params().initialize(init=init.Normal(0.001), ctx=cpu())
         else:
-            for pn in range(self.part_num):
+            for pn in range(self.partnum):
                 tmp_feature = nn.Dense(feature_channels, activation=None,
                                        use_bias=False, flatten=True)
                 tmp_feature_ = nn.HybridSequential(prefix='')
@@ -106,7 +106,7 @@ class PCBRPPNet(HybridBlock):
             xs = [score*x for score in rppscores]
             xs = [self.pool(x) for x in xs]
         else:
-            xs = x.split(num_outputs=self.partnum, axis=1)
+            xs = x.split(num_outputs=self.partnum, axis=2)
 
         # feature weight share or not
         if self.feature_weight_share:
@@ -115,9 +115,9 @@ class PCBRPPNet(HybridBlock):
             IDs = [self.classifier(x) for x in xs]
         else:
             feas = [getattr(self, 'feature%d' % (pn+1))(x)
-                    for (x, pn) in zip(xs, range(self.part_num))]
+                    for (x, pn) in zip(xs, range(self.partnum))]
             xs = [getattr(self, 'feature%d_' % (pn+1))(fea)
-                  for (fea, pn) in zip(feas, range(self.part_num))]
+                  for (fea, pn) in zip(feas, range(self.partnum))]
             IDs = [getattr(self, 'classifier%d' % (pn+1))(x)
-                   for (x, pn) in zip(xs, range(self.part_num))]
+                   for (x, pn) in zip(xs, range(self.partnum))]
         return IDs, feas
