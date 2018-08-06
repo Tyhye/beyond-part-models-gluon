@@ -11,6 +11,9 @@ Implementation of &lt;Beyond Part Models: Person Retrieval with Refined Part Poo
 * [ ] Test Process.
 * [ ] Eval Process.
 * [ ] Show Result.
+* [ ] Market-1501 Prepare
+* [ ] Duke Prepare
+* [ ] ...
 
 ## Result
 
