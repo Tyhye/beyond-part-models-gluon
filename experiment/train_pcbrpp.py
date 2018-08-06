@@ -227,6 +227,9 @@ def train_pcbrpp(cfg, logprint=print):
                 train_accuracy_metric.update(preds=state['output'], labels=label)
         else:
             img, cam, label, ds = state['sample']
+            if cfg.feature_norm:
+                fnorm = state['output'].power(2).sum(axis=-1, keepdims=True).sqrt(2)
+                state['output'] = state['output'] / fnorm
             reid_metric.update(state['output'], cam, label, ds)
 
     def on_end_iter(state):

@@ -52,6 +52,7 @@ Data Options:
     --resize_size=<tuple>       Image resize size tuple (width, height) [default: (128, 384)]
     --crop_size=<tuple>         Image crop size tuple (width, height) [default: (128, 384)]
     --batchsize=<int>           Batchsize [default: 32]
+    --feature_norm              If the feature are normalized when testing.
 
 Train Data Options:
     --trainList=<str>           Train files list txt [default: datas/Market1501/train.txt]
@@ -142,6 +143,7 @@ def main():
     cfg.batchsize = int(args['--batchsize'])
     cfg.resize_size = eval(args['--resize_size'])
     cfg.crop_size = eval(args['--crop_size'])
+    cfg.feature_norm = args['--feature_norm']
 
     cfg.learning_rate = float(args['--learning_rate'])
     cfg.weight_decay = float(args['--weight_decay'])
