@@ -280,7 +280,7 @@ class ResNetV1(HybridBlock):
                 self.features.add(nn.MaxPool2D(3, 2, 1))
 
             for i, num_layer in enumerate(layers):
-                stride = 1 if i == 0 else 2
+                stride = 1 if (i == 0 or (i == 3 and laststride==1)) else 2
                 self.features.add(self._make_layer(block, num_layer, channels[i+1],
                                                    stride, i+1, in_channels=channels[i]))
             # self.features.add(nn.GlobalAvgPool2D())
@@ -322,7 +322,7 @@ class ResNetV2(HybridBlock):
         Enable thumbnail.
     """
 
-    def __init__(self, block, layers, channels, classes=1000, thumbnail=False, **kwargs):
+    def __init__(self, block, layers, channels, classes=1000, thumbnail=False, laststride=2, **kwargs):
         super(ResNetV2, self).__init__(**kwargs)
         assert len(layers) == len(channels) - 1
         with self.name_scope():
@@ -339,7 +339,7 @@ class ResNetV2(HybridBlock):
 
             in_channels = channels[0]
             for i, num_layer in enumerate(layers):
-                stride = 1 if i == 0 else 2
+                stride = 1 if (i == 0 or (i == 3 and laststride==1)) else 2
                 self.features.add(self._make_layer(block, num_layer, channels[i+1],
                                                    stride, i+1, in_channels=in_channels))
                 in_channels = channels[i+1]

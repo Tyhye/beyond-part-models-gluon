@@ -30,6 +30,7 @@ General Options:
 Network Options:
     --basenet_type=<str>        BaseNet type for Model [default: resnet50_v2]
     --classes_num=<int>         Output classes number of the network [default: 751]
+    --laststride=<int>          The stride of the last module in the base network [default: 2]
     --feature_channels=<int>    Feature channels of the network [default: 512]
     --partnum=<int>             The number of the pcb parts. [default: 6]
     --feature_weight_share      If the six partnum share weights.
@@ -110,6 +111,7 @@ def main():
     
     cfg.basenet = args['--basenet_type']
     cfg.classes_num = int(args['--classes_num'])
+    cfg.laststride = int(args['--laststride'])
     cfg.feature_channels = int(args['--feature_channels'])
     if cfg.withpcb:    
         cfg.partnum = int(args['--partnum'])

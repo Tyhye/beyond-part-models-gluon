@@ -82,7 +82,7 @@ def train_pcbrpp(cfg, logprint=print):
     # ==========================================================================
     Net = PCBRPPNet(basenetwork=cfg.basenet, pretrained=cfg.base_pretrained,
                     feature_channels=cfg.feature_channels,
-                    classes=cfg.classes_num,
+                    classes=cfg.classes_num, laststride=cfg.laststride,
                     withpcb=cfg.withpcb, partnum=cfg.partnum,
                     feature_weight_share=cfg.feature_weight_share,
                     withrpp=cfg.withrpp)
@@ -248,7 +248,7 @@ def train_pcbrpp(cfg, logprint=print):
             processor.test(test_process, test_iterator())
             CMC, mAP = reid_metric.get()[1]
             logprint("[Epoch %d] CMC1: %.2f%% CMC5: %.2f%% CMC10: %.2f%% CMC20: %.2f%% mAP: %.2f%%" %
-                     (state['epoch'], CMC[0]*100, CMC[4]*100, CMC[9]*100, CMC[19]*100, mAP*100))
+                    (state['epoch'], CMC[0]*100, CMC[4]*100, CMC[9]*100, CMC[19]*100, mAP*100))
             if state['epoch'] % cfg.snap_epochs == 0:
                 net_saver.save(Net, CMC[0])
 

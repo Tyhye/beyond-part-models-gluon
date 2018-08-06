@@ -28,7 +28,7 @@ class PCBRPPNet(HybridBlock):
     """
 
     def __init__(self, basenetwork='resnet50_v2', pretrained="True",
-                 feature_channels=512, classes=751,
+                 feature_channels=512, classes=751, laststride=2,
                  withpcb='True', partnum=6, feature_weight_share=False,
                  withrpp='True', **kwargs):
 
@@ -41,7 +41,7 @@ class PCBRPPNet(HybridBlock):
         self.feature_weight_share = feature_weight_share
         self.part_num = partnum
 
-        self.conv = basenetwork(pretrained=pretrained, ctx=cpu())
+        self.conv = basenetwork(pretrained=pretrained, laststride=laststride, ctx=cpu())
         if not pretrained:
             self.conv.collect_params().initialize(init=init.Xavier(), ctx=cpu())
         self.pool = nn.GlobalAvgPool2D()
