@@ -243,14 +243,14 @@ def train_pcbrpp(cfg, logprint=print):
             else:
                 logprint("[Epoch %d] train accuracy: %.2f%%" %
                          (state['epoch'], train_accuracy_metric.get()[1]*100))
-        if state['epoch'] % cfg.val_epochs == 0:
-            reset_metrics()
-            processor.test(test_process, test_iterator())
-            CMC, mAP = reid_metric.get()[1]
-            logprint("[Epoch %d] CMC1: %.2f%% CMC5: %.2f%% CMC10: %.2f%% CMC20: %.2f%% mAP: %.2f%%" %
-                    (state['epoch'], CMC[0]*100, CMC[4]*100, CMC[9]*100, CMC[19]*100, mAP*100))
-            if state['epoch'] % cfg.snap_epochs == 0:
-                net_saver.save(Net, CMC[0])
+            if state['epoch'] % cfg.val_epochs == 0:
+                reset_metrics()
+                processor.test(test_process, test_iterator())
+                CMC, mAP = reid_metric.get()[1]
+                logprint("[Epoch %d] CMC1: %.2f%% CMC5: %.2f%% CMC10: %.2f%% CMC20: %.2f%% mAP: %.2f%%" %
+                        (state['epoch'], CMC[0]*100, CMC[4]*100, CMC[9]*100, CMC[19]*100, mAP*100))
+                if state['epoch'] % cfg.snap_epochs == 0:
+                    net_saver.save(Net, CMC[0])
 
     def on_end(state):
         pass
