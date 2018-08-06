@@ -25,7 +25,8 @@ Here we just show some results.
 
 | BatchSize | Network | PCB | PartNum | RPP | FT | CMC1 | CMC5 | CMC10 | CMC20 | mAP | Note |
 | --------- | ------- | --- | ------- | --- | -- | ---- | ---- | ----- | ----- | --- | ---- |
-| 32 | Resnet50_v2 | w/o | | w/o | | 89.76 | 96.20 | 97.51 | 98.52 | 75.22 | |
+| 32 | Resnet50_v2 | w/o | | w/o | | 85.3% | 96.20 | 97.51 | 98.52 | 68.5% | (in paper) |
+| 32 | Resnet50_v2 | w/o | | w/o | | 89.76 | 96.20 | 97.51 | 98.52 | 75.22 | (ours 512dim)|
 | 32 | Resnet50_v2 | w | 6 | w/o | | - | - | - | - | - | |
 | 32 | Resnet50_v2 | w | 6 | w | no | - | - | - | - | - | |
 | 32 | Resnet50_v2 | w | 6 | w | yes | - | - | - | - | - | |
