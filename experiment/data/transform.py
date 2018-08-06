@@ -116,7 +116,7 @@ class RandomCrop(Block):
     """Crop the input image in random place.
     Parameters
     ----------
-    size : int or tuple of (W, H)
+    size : int or tuple of (W,H)
         Size of the final output.
     Inputs:
         - **data**: input tensor with (Hi x Wi x C) shape.

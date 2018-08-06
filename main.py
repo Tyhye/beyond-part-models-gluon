@@ -49,8 +49,8 @@ Training Setting Options:
     --Snap=<str>                Model state dict file path [default: saved/]
 
 Data Options:
-    --resize_size=<tuple>       Image resize size tuple (height, width) [default: (384, 128)]
-    --crop_size=<tuple>         Image crop size tuple (height, width) [default: (384, 128)]
+    --resize_size=<tuple>       Image resize size tuple (width, height) [default: (128, 384)]
+    --crop_size=<tuple>         Image crop size tuple (width, height) [default: (128, 384)]
     --batchsize=<int>           Batchsize [default: 32]
 
 Train Data Options:
