@@ -30,4 +30,12 @@ class Best_Evaluation_Saver(object):
                     fname = os.path.join(self.save_dir, '%s_%.4f.params' % (
                         self.save_name, new_evaluation))
                 net.save_params(fname)
+                if self.best_evaluation is not None:
+                    if self.save_name is None:
+                        fname = os.path.join(
+                            self.save_dir, '%.4f.params' % (self.best_evaluation))
+                    else:
+                        fname = os.path.join(self.save_dir, '%s_%.4f.params' % (
+                            self.save_name, self.best_evaluation))
+                    os.remove(fname)                    
                 self.best_evaluation = new_evaluation
