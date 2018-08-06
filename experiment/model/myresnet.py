@@ -265,7 +265,7 @@ class ResNetV1(HybridBlock):
         Enable thumbnail.
     """
 
-    def __init__(self, block, layers, channels, classes=1000, thumbnail=False, **kwargs):
+    def __init__(self, block, layers, channels, classes=1000, thumbnail=False, laststride=2, **kwargs):
         super(ResNetV1, self).__init__(**kwargs)
         assert len(layers) == len(channels) - 1
         with self.name_scope():
