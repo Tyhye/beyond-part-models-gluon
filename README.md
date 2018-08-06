@@ -20,6 +20,7 @@ The model is based on resnet50.
 Input images are resized to 384x128.
 Feature channels are set 512.
 Here we just show some results.
+
 **Market-1501**
 
 | BatchSize | Network | PCB | PartNum | RPP | FT | CMC1 | CMC5 | CMC10 | CMC20 | mAP | Note |
