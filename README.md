@@ -18,14 +18,15 @@ Implementation of &lt;Beyond Part Models: Person Retrieval with Refined Part Poo
 ## Result
 The model is based on resnet50. 
 Input images are resized to 384x128.
-Feature channels are set 512.
+Feature channels are set 256.
+Batchsize is set 32, which is different from the paper.
 Here we just show some results.
 
 **Market-1501**
 
 | BS | Network | PCB | PN | RPP | FT | CMC1 | CMC5 | CMC10 | CMC20 | mAP | Note |
 | -- | ------- | --- | -- | --- | -- | ---- | ---- | ----- | ----- | --- | ---- |
-| 32 | Resnet50_v2 | w/o | | w/o | | 85.3 | - | - | - | 68.5% | (in paper) |
+| 64 | Resnet50_v2 | w/o | | w/o | | 85.3 | - | - | - | 68.5% | (in paper) |
 | 32 | Resnet50_v2 | w/o | | w/o | | 89.76 | 96.20 | 97.51 | 98.52 | 75.22 | (ours 512dim)|
 | 32 | Resnet50_v1 | w/o | | w/o | | - | - | - | - | - | |
 | 32 | Resnet50_v2 | w | 6 | w/o | | - | - | - | - | - | |

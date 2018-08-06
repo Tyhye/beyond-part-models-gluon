@@ -31,7 +31,7 @@ Network Options:
     --basenet_type=<str>        BaseNet type for Model [default: resnet50_v2]
     --classes_num=<int>         Output classes number of the network [default: 751]
     --laststride=<int>          The stride of the last module in the base network [default: 2]
-    --feature_channels=<int>    Feature channels of the network [default: 512]
+    --feature_channels=<int>    Feature channels of the network [default: 256]
     --partnum=<int>             The number of the pcb parts. [default: 6]
     --feature_weight_share      If the six partnum share weights.
     --base_not_pretrained       If the base network don't pretrained on ImageNet
