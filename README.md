@@ -23,8 +23,8 @@ Here we just show some results.
 
 **Market-1501**
 
-| BatchSize | Network | PCB | PartNum | RPP | FT | CMC1 | CMC5 | CMC10 | CMC20 | mAP | Note |
-| --------- | ------- | --- | ------- | --- | -- | ---- | ---- | ----- | ----- | --- | ---- |
+| BS | Network | PCB | PN | RPP | FT | CMC1 | CMC5 | CMC10 | CMC20 | mAP | Note |
+| -- | ------- | --- | -- | --- | -- | ---- | ---- | ----- | ----- | --- | ---- |
 | 32 | Resnet50_v2 | w/o | | w/o | | 85.3 | - | - | - | 68.5% | (in paper) |
 | 32 | Resnet50_v2 | w/o | | w/o | | 89.76 | 96.20 | 97.51 | 98.52 | 75.22 | (ours 512dim)|
 | 32 | Resnet50_v1 | w/o | | w/o | | - | - | - | - | - | |
