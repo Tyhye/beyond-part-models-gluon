@@ -106,7 +106,7 @@ class PCBRPPNet(HybridBlock):
             xs = [score*x for score in rppscores]
             xs = [self.pool(x) for x in xs]
         else:
-            xs = x.aplit(num_outputs=self.partnum, axis=1)
+            xs = x.split(num_outputs=self.partnum, axis=1)
 
         # feature weight share or not
         if self.feature_weight_share:
