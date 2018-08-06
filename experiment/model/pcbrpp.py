@@ -39,7 +39,7 @@ class PCBRPPNet(HybridBlock):
         if self.withrpp and not self.withpcb:
             raise "If withrpp is True, with pcb must be True."
         self.feature_weight_share = feature_weight_share
-        self.part_num = partnum
+        self.partnum = partnum
 
         self.conv = basenetwork(pretrained=pretrained, laststride=laststride, ctx=cpu())
         if not pretrained:
