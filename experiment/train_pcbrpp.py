@@ -242,7 +242,7 @@ def train_pcbrpp(cfg, logprint=print):
                              (state['epoch'], idx+1, metric.get()[1]*100))
             else:
                 logprint("[Epoch %d] train accuracy: %.2f%%" %
-                         (state['epoch'], train_accuracy_metric.get()[1]))
+                         (state['epoch'], train_accuracy_metric.get()[1]*100))
         if state['epoch'] % cfg.val_epochs == 0:
             reset_metrics()
             processor.test(test_process, test_iterator())
