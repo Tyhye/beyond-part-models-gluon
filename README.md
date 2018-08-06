@@ -21,16 +21,16 @@ Input images are resized to 384x128.
 Feature channels are set 512.
 Here we just show some results.
 **Market-1501**
-| BatchSize | Network | PCB | PartNum | RPP | FT | Rank@1 | Rank@5 | Rank@10 | mAP | Note |
-| --------- | ------- | --- | ------- | --- | -- | ------ | ------ | ------- | --- | ---- |
-| 32 | Resnet50_v2 | w/o | | w/o | | 82.39 | 93.32 | 95.49 | 60.97 | |
-| 32 | Resnet50_v2 | w | 6 | w/o | | - | - | - | - | |
-| 32 | Resnet50_v2 | w | 6 | w | no | - | - | - | - | |
-| 32 | Resnet50_v2 | w | 6 | w | yes | - | - | - | - | |
-| 32 | Resnet50_v1 | w/o | | w/o | | - | - | - | - | |
-| 32 | Resnet50_v1 | w | 6 | w/o | | - | - | - | - | |
-| 32 | Resnet50_v1 | w | 6 | w | no | - | - | - | - | |
-| 32 | Resnet50_v1 | w | 6 | w | yes | - | - | - | - | |
+| BatchSize | Network | PCB | PartNum | RPP | FT | CMC1 | CMC5 | CMC10 | CMC20 | mAP | Note |
+| --------- | ------- | --- | ------- | --- | -- | ---- | ---- | ----- | ----- | --- | ---- |
+| 32 | Resnet50_v2 | w/o | | w/o | | 89.76 | 96.20 | 97.51 | 98.52 | 75.22 | |
+| 32 | Resnet50_v2 | w | 6 | w/o | | - | - | - | - | - |
+| 32 | Resnet50_v2 | w | 6 | w | no | - | - | - | - | - |
+| 32 | Resnet50_v2 | w | 6 | w | yes | - | - | - | - | - |
+| 32 | Resnet50_v1 | w/o | | w/o | | - | - | - | - | - |
+| 32 | Resnet50_v1 | w | 6 | w/o | | - | - | - | - | - |
+| 32 | Resnet50_v1 | w | 6 | w | no | - | - | - | - | - |
+| 32 | Resnet50_v1 | w | 6 | w | yes | - | - | - | - | - |
 
 
 ## Usage
