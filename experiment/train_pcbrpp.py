@@ -229,7 +229,7 @@ def train_pcbrpp(cfg, logprint=print):
             img, cam, label, ds = state['sample']
             if cfg.feature_norm:
                 fnorm = ndarray.power(state['output'], 2)
-                fnorm = ndarrry.sqrt(ndarray.sum(fnorm, , axis=-1, keepdims=True))
+                fnorm = ndarrry.sqrt(ndarray.sum(fnorm, axis=-1, keepdims=True))
                 state['output'] = state['output'] / fnorm
             reid_metric.update(state['output'], cam, label, ds)
 
