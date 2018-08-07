@@ -44,7 +44,9 @@ class PCBRPPNet(HybridBlock):
         self.conv = basenetwork(pretrained=pretrained, laststride=laststride, ctx=cpu())
         if not pretrained:
             self.conv.collect_params().initialize(init=init.Xavier(), ctx=cpu())
+        
         self.pool = nn.GlobalAvgPool2D()
+        self.dropout = nn.Dropout(rate=0.5)
 
         if not self.withpcb or self.feature_weight_share:
             self.feature = nn.Dense(feature_channels, activation=None,
@@ -104,9 +106,10 @@ class PCBRPPNet(HybridBlock):
             rppscore = rppscore.softmax(axis=1)
             rppscores = rppscore.split(num_outputs=self.partnum, axis=1)
             xs = [score*x for score in rppscores]
-            xs = [self.pool(x) for x in xs]
         else:
             xs = x.split(num_outputs=self.partnum, axis=2)
+        xs = [self.pool(x) for x in xs]
+        xs = [self.dropout(x) for x in xs]
 
         # feature weight share or not
         if self.feature_weight_share:
