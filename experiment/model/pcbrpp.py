@@ -41,39 +41,47 @@ class PCBRPPNet(HybridBlock):
         self.feature_weight_share = feature_weight_share
         self.partnum = partnum
 
-        self.conv = basenetwork(pretrained=pretrained, laststride=laststride, ctx=cpu())
+        self.conv = basenetwork(pretrained=pretrained,
+                                laststride=laststride, ctx=cpu())
         if not pretrained:
             self.conv.collect_params().initialize(init=init.Xavier(), ctx=cpu())
-        
+
         self.pool = nn.GlobalAvgPool2D()
         self.dropout = nn.Dropout(rate=0.5)
 
         if not self.withpcb or self.feature_weight_share:
             self.feature = nn.Dense(feature_channels, activation=None,
-                                    use_bias=False, flatten=True)
+                                    use_bias=False, flatten=True,
+                                    weight_initializer=init.Xavier(),
+                                    bias_initializer='zeros')
             self.feature_ = nn.HybridSequential(prefix='')
             with self.feature_.name_scope():
-                self.feature_.add(nn.BatchNorm())
+                self.feature_.add(nn.BatchNorm(
+                    gamma_initializer=init.Zero(),
+                    beta_initializer='zero'))
                 self.feature_.add(nn.Activation('relu'))
             self.feature_.hybridize()
-            self.classifier = nn.Dense(classes)
-            self.feature.collect_params().initialize(init=init.Xavier(), ctx=cpu())
-            self.feature_.initialize(init=init.Zero(), ctx=cpu())
-            self.classifier.collect_params().initialize(init=init.Normal(0.001), ctx=cpu())
+            self.classifier = nn.Dense(classes, use_bias=False,
+                                       weight_initializer=init.Normal(0.001))
+            # self.feature.collect_params().initialize(init=init.Xavier(), ctx=cpu())
+            # self.feature_.initialize(init=init.Zero(), ctx=cpu())
+            # self.classifier.collect_params().initialize(init=init.Normal(0.001), ctx=cpu())
         else:
             for pn in range(self.partnum):
                 tmp_feature = nn.Dense(feature_channels, activation=None,
-                                       use_bias=False, flatten=True)
+                                       use_bias=False, flatten=True,
+                                       weight_initializer=init.Xavier(),
+                                       bias_initializer='zeros')
                 tmp_feature_ = nn.HybridSequential(prefix='')
                 with tmp_feature_.name_scope():
-                    tmp_feature_.add(nn.BatchNorm(center=False, scale=False))
+                    tmp_feature_.add(nn.BatchNorm(  # center=False, scale=False,
+                        gamma_initializer=init.Zero(),
+                        beta_initializer='zero'))
                     tmp_feature_.add(nn.Activation('relu'))
                 tmp_feature_.hybridize()
-                tmp_classifier = nn.Dense(classes)
+                tmp_classifier = nn.Dense(classes, use_bias=False,
+                                          weight_initializer=init.Normal(0.001))
 
-                tmp_feature.collect_params().initialize(init=init.Xavier(), ctx=cpu())
-                tmp_feature_.collect_params().initialize(init=init.Zero(), ctx=cpu())
-                tmp_classifier.collect_params().initialize(init=init.Normal(0.001), ctx=cpu())
                 setattr(self, 'feature%d' % (pn+1), tmp_feature)
                 setattr(self, 'feature%d_' % (pn+1), tmp_feature_)
                 setattr(self, 'classifier%d' % (pn+1), tmp_classifier)
