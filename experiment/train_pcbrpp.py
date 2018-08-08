@@ -87,10 +87,9 @@ def train_pcbrpp(cfg, logprint=print):
                     feature_weight_share=cfg.feature_weight_share,
                     withrpp=cfg.withrpp)
     if cfg.pretrain_path is not None:
-        Net.load_parameters(cfg.pretrain_path, ctx = cfg.ctx,
+        Net.load_parameters(cfg.pretrain_path, ctx = mx.cpu(),
                             allow_missing=True, ignore_extra=True)
-    else:
-        Net.collect_params().initialize(cfg.ctx)
+    Net.collect_params().reset_ctx(cfg.ctx)
 
     trainers = []
     if cfg.base_train:
