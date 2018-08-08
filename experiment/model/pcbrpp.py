@@ -51,9 +51,10 @@ class PCBRPPNet(HybridBlock):
 
         if not self.withpcb or self.feature_weight_share:
             self.feature = nn.Dense(feature_channels, activation=None,
-                                    use_bias=False, flatten=True,
+                                    use_bias=False,
                                     weight_initializer=init.Xavier(),
                                     bias_initializer='zeros')
+            self.feature.hybridize()
             self.feature_ = nn.HybridSequential(prefix='')
             with self.feature_.name_scope():
                 self.feature_.add(nn.BatchNorm(
@@ -63,6 +64,7 @@ class PCBRPPNet(HybridBlock):
             self.feature_.hybridize()
             self.classifier = nn.Dense(classes, use_bias=False,
                                        weight_initializer=init.Normal(0.001))
+            self.classifier.hybridize()
             # self.feature.collect_params().initialize(init=init.Xavier(), ctx=cpu())
             # self.feature_.initialize(init=init.Zero(), ctx=cpu())
             # self.classifier.collect_params().initialize(init=init.Normal(0.001), ctx=cpu())
@@ -72,6 +74,7 @@ class PCBRPPNet(HybridBlock):
                                        use_bias=False, flatten=True,
                                        weight_initializer=init.Xavier(),
                                        bias_initializer='zeros')
+                tmp_feature.hybridize()
                 tmp_feature_ = nn.HybridSequential(prefix='')
                 with tmp_feature_.name_scope():
                     tmp_feature_.add(nn.BatchNorm(  # center=False, scale=False,
@@ -81,16 +84,17 @@ class PCBRPPNet(HybridBlock):
                 tmp_feature_.hybridize()
                 tmp_classifier = nn.Dense(classes, use_bias=False,
                                           weight_initializer=init.Normal(0.001))
-
+                tmp_classifier.hybridize()
                 setattr(self, 'feature%d' % (pn+1), tmp_feature)
                 setattr(self, 'feature%d_' % (pn+1), tmp_feature_)
                 setattr(self, 'classifier%d' % (pn+1), tmp_classifier)
 
         if self.withrpp:
             self.rppscore = nn.Conv2D(
-                self.partnum, kernel_size=1, use_bias=False)
-            self.rppclassifier.collect_params().initialize(
-                init=init.Normal(0.001), ctx=cpu())
+                self.partnum, kernel_size=1, use_bias=False,
+                weight_initializer=init.Normal(0.001))
+            # self.rppclassifier.collect_params().initialize(
+            #     init=init.Normal(0.001), ctx=cpu())
 
     def hybrid_forward(self, F, x):
         x = self.conv(x)
