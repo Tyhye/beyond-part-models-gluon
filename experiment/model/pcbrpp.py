@@ -54,7 +54,6 @@ class PCBRPPNet(HybridBlock):
                                     use_bias=False,
                                     weight_initializer=init.Xavier(),
                                     bias_initializer='zeros')
-            self.feature.hybridize()
             self.feature_ = nn.HybridSequential(prefix='')
             with self.feature_.name_scope():
                 self.feature_.add(nn.BatchNorm(
@@ -65,9 +64,9 @@ class PCBRPPNet(HybridBlock):
             self.classifier = nn.Dense(classes, use_bias=False,
                                        weight_initializer=init.Normal(0.001))
             self.classifier.hybridize()
-            # self.feature.collect_params().initialize(init=init.Xavier(), ctx=cpu())
-            # self.feature_.initialize(init=init.Zero(), ctx=cpu())
-            # self.classifier.collect_params().initialize(init=init.Normal(0.001), ctx=cpu())
+            self.feature.initialize(ctx=cpu())
+            self.feature_.initialize(ctx=cpu())
+            self.classifier.initialize(ctx=cpu())
         else:
             for pn in range(self.partnum):
                 tmp_feature = nn.Dense(feature_channels, activation=None,
@@ -85,6 +84,9 @@ class PCBRPPNet(HybridBlock):
                 tmp_classifier = nn.Dense(classes, use_bias=False,
                                           weight_initializer=init.Normal(0.001))
                 tmp_classifier.hybridize()
+                tmp_feature.initialize(ctx=cpu())
+                tmp_feature_.initialize(ctx=cpu())
+                tmp_classifier.initialize(ctx=cpu())
                 setattr(self, 'feature%d' % (pn+1), tmp_feature)
                 setattr(self, 'feature%d_' % (pn+1), tmp_feature_)
                 setattr(self, 'classifier%d' % (pn+1), tmp_classifier)
