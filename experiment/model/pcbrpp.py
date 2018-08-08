@@ -55,7 +55,7 @@ class PCBRPPNet(HybridBlock):
             self.feature_ = nn.HybridSequential(prefix='')
             with self.feature_.name_scope():
                 self.feature_.add(nn.BatchNorm())
-                self.feature_.add(nn.Activation('relu'))
+                self.feature_.add(nn.LeakyReLU(alpha=0.1, inplace=True))
             self.feature_.hybridize()
             self.classifier = nn.Dense(classes, use_bias=False)
             self.feature.collect_params().initialize(init=init.Xavier(), ctx=cpu())
@@ -68,7 +68,7 @@ class PCBRPPNet(HybridBlock):
                 tmp_feature_ = nn.HybridSequential(prefix='')
                 with tmp_feature_.name_scope():
                     tmp_feature_.add(nn.BatchNorm())
-                    tmp_feature_.add(nn.Activation('relu'))
+                    tmp_feature_.add(nn.LeakyReLU(alpha=0.1, inplace=True))
                 tmp_feature_.hybridize()
                 tmp_classifier = nn.Dense(classes, use_bias=False)
                 tmp_feature.collect_params().initialize(init=init.Xavier(), ctx=cpu())
