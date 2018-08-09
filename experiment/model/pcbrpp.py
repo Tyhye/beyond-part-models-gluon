@@ -72,8 +72,8 @@ class PCBRPPNet(HybridBlock):
 
         if self.withrpp:
             self.rppscore = nn.Conv2D(
-                self.partnum, kernel_size=1, use_bias=False,
-                weight_initializer=init.Normal(0.001))
+                self.partnum, kernel_size=1, use_bias=False)
+            self.rppscore.collect_params().initialize(init=init.Normal(0.001), ctx=cpu())
 
     def hybrid_forward(self, F, x):
         x = self.conv(x)
