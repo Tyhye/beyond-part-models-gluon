@@ -50,40 +50,30 @@ class PCBRPPNet(HybridBlock):
         self.dropout = nn.Dropout(rate=0.5)
 
         if not self.withpcb or self.feature_weight_share:
-            self.feature = nn.Dense(feature_channels, activation=None,
-                                    use_bias=False, flatten=True)
-            self.feature_ = nn.HybridSequential(prefix='')
-            with self.feature_.name_scope():
-                self.feature_.add(nn.BatchNorm())
-                self.feature_.add(nn.LeakyReLU(alpha=0.1))
-            self.feature_.hybridize()
+            self.feature = nn.HybridSequential(prefix='')
+            with self.feature.name_scope():
+                self.feature.add(nn.Dense(feature_channels, activation=None,
+                                    use_bias=False, flatten=True))
+                self.feature.add(nn.BatchNorm())
+                self.feature.add(nn.LeakyReLU(alpha=0.1))
+            self.feature.hybridize()
             self.classifier = nn.Dense(classes, use_bias=False)
             self.feature.collect_params().initialize(init=init.Xavier(), ctx=cpu())
-            self.feature_.initialize(init=init.Zero(), ctx=cpu())
             self.classifier.collect_params().initialize(init=init.Normal(0.001), ctx=cpu())
         else:
             for pn in range(self.partnum):
                 tmp_feature = nn.Dense(feature_channels, activation=None,
                                        use_bias=False, flatten=True)
-                tmp_feature_ = nn.HybridSequential(prefix='')
-                with tmp_feature_.name_scope():
-                    tmp_feature_.add(nn.BatchNorm())
-                #     tmp_feature_.add(nn.LeakyReLU(alpha=0.1))
-                tmp_feature_.hybridize()
                 tmp_classifier = nn.Dense(classes, use_bias=False)
                 tmp_feature.collect_params().initialize(init=init.Xavier(), ctx=cpu())
-                tmp_feature_.collect_params().initialize(init=init.Zero(), ctx=cpu())
                 tmp_classifier.collect_params().initialize(init=init.Normal(0.001), ctx=cpu())
                 setattr(self, 'feature%d' % (pn+1), tmp_feature)
-                setattr(self, 'feature%d_' % (pn+1), tmp_feature_)
                 setattr(self, 'classifier%d' % (pn+1), tmp_classifier)
 
         if self.withrpp:
             self.rppscore = nn.Conv2D(
                 self.partnum, kernel_size=1, use_bias=False,
                 weight_initializer=init.Normal(0.001))
-            # self.rppclassifier.collect_params().initialize(
-            #     init=init.Normal(0.001), ctx=cpu())
 
     def hybrid_forward(self, F, x):
         x = self.conv(x)
@@ -94,7 +84,6 @@ class PCBRPPNet(HybridBlock):
         if not self.withpcb:
             x = self.pool(x)
             fea = self.feature(x)
-            x = self.feature_(fea)
             ID = self.classifier(x)
             return ID, fea
 
@@ -115,14 +104,10 @@ class PCBRPPNet(HybridBlock):
         # feature weight share or not
         if self.feature_weight_share:
             feas = [self.feature(x) for x in xs]
-            xs = [self.feature_(fea) for fea in feas]
             IDs = [self.classifier(x) for x in xs]
         else:
             feas = [getattr(self, 'feature%d' % (pn+1))(x)
                     for (x, pn) in zip(xs, range(self.partnum))]
-            xs = [getattr(self, 'feature%d_' % (pn+1))(fea)
-                  for (fea, pn) in zip(feas, range(self.partnum))]
-            # xs = feas
             IDs = [getattr(self, 'classifier%d' % (pn+1))(x)
                    for (x, pn) in zip(xs, range(self.partnum))]
-        return IDs, xs
+        return IDs, feas
