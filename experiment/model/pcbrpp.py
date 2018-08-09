@@ -74,6 +74,7 @@ class PCBRPPNet(HybridBlock):
             self.rppscore = nn.Conv2D(
                 self.partnum, kernel_size=1, use_bias=False)
             self.rppscore.collect_params().initialize(init=init.Normal(0.001), ctx=cpu())
+                
 
     def hybrid_forward(self, F, x):
         x = self.conv(x)
@@ -83,6 +84,7 @@ class PCBRPPNet(HybridBlock):
         # ======================================================================
         if not self.withpcb:
             x = self.pool(x)
+            x = self.dropout(x)
             fea = self.feature(x)
             ID = self.classifier(x)
             return ID, fea
@@ -102,6 +104,40 @@ class PCBRPPNet(HybridBlock):
         xs = [self.dropout(x) for x in xs]
 
         # feature weight share or not
+        if self.feature_weight_share:
+            feas = [self.feature(x) for x in xs]
+            IDs = [self.classifier(x) for x in feas]
+        else:
+            feas = [getattr(self, 'feature%d' % (pn+1))(x)
+                    for (x, pn) in zip(xs, range(self.partnum))]
+            IDs = [getattr(self, 'classifier%d' % (pn+1))(x)
+                   for (x, pn) in zip(feas, range(self.partnum))]
+        return IDs, feas
+    
+    def base_forward(self, x):
+        self.conv(x)
+        return x
+
+    def split_forward(self, x):
+        if self.withrpp:
+            rppscore = self.rppscore(x)
+            rppscore = rppscore.softmax(axis=1)
+            rppscores = rppscore.split(num_outputs=self.partnum, axis=1)
+            xs = [score*x for score in rppscores]
+        else:
+            xs = x.split(num_outputs=self.partnum, axis=2)
+        return xs
+    
+    def tail_forward(self, xs):
+        if not self.withpcb:
+            x = self.pool(xs)
+            x = self.dropout(x)
+            fea = self.feature(x)
+            ID = self.classifier(x)
+            return ID, fea
+
+        xs = [self.pool(x) for x in xs]
+        xs = [self.dropout(x) for x in xs]
         if self.feature_weight_share:
             feas = [self.feature(x) for x in xs]
             IDs = [self.classifier(x) for x in feas]

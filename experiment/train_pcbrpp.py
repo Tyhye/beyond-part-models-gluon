@@ -206,7 +206,14 @@ def train_pcbrpp(cfg, logprint=print):
         data = data.as_in_context(cfg.ctx)
         label = label.as_in_context(cfg.ctx)
         with autograd.record():
-            ID, Fea = Net(data)
+            with autograd.record(train_mode=cfg.base_train):
+                x = Net.base_forward(data)
+            if cfg.withpcb:
+                with autograd.record(train_mode=cfg.rpp_train):
+                    x = Net.split_forward(data)
+            with autograd.record(train_mode=cfg.tail_train):
+                ID, Fea = Net.tail_forward(x)
+            # ID, Fea = Net(data)
             if isinstance(ID, list):
                 losses = [softmax_cross_entropy(id_, label) for id_ in ID]
                 loss = ndarray.stack(*losses, axis=0).mean(axis=0)

@@ -166,6 +166,8 @@ def main():
             cfg.rpp_learning_rate = cfg.learning_rate
             if args['--rpp_lr_scale'] is not None:
                 cfg.rpp_learning_rate *= float(args['--pcb_lr_scale'])
+    else:
+        cfg.rpp_train = cfg.base_train
 
     cfg.trainList=args['--trainList']
     cfg.trainIMpath=args['--trainIMpath']
