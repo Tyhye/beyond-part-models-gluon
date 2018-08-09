@@ -125,4 +125,4 @@ class PCBRPPNet(HybridBlock):
             # xs = feas
             IDs = [getattr(self, 'classifier%d' % (pn+1))(x)
                    for (x, pn) in zip(xs, range(self.partnum))]
-        return IDs, feas
+        return IDs, xs
