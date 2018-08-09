@@ -31,6 +31,7 @@ from .scheduler.listscheduler import MultiStepListScheduler
 from .process.epochprocessor import EpochProcessor
 from .metric.reidmetric import ReID_Metric
 
+
 def train_pcbrpp(cfg, logprint=print):
     cfg.ctx = mx.Context(cfg.device_type, cfg.device_id)
 
@@ -57,9 +58,9 @@ def train_pcbrpp(cfg, logprint=print):
                                  transform=gallerytransformer)
     train_iterator = DataLoader(traindataset, num_workers=1, shuffle=True,
                                 last_batch='discard', batch_size=cfg.batchsize)
-    query_iterator = DataLoader(querydataset, num_workers=1,shuffle=True,
+    query_iterator = DataLoader(querydataset, num_workers=1, shuffle=True,
                                 last_batch='keep', batch_size=cfg.batchsize)
-    gallery_iterator = DataLoader(gallerydataset, num_workers=1,shuffle=True,
+    gallery_iterator = DataLoader(gallerydataset, num_workers=1, shuffle=True,
                                   last_batch='keep', batch_size=cfg.batchsize)
 
     def test_iterator():
@@ -87,8 +88,8 @@ def train_pcbrpp(cfg, logprint=print):
                     feature_weight_share=cfg.feature_weight_share,
                     withrpp=cfg.withrpp)
     if cfg.pretrain_path is not None:
-        Net.load_parameters(cfg.pretrain_path, ctx = mx.cpu(),
-                            allow_missing=True, ignore_extra=True)
+        Net.load_params(cfg.pretrain_path, ctx=mx.cpu(),
+                        allow_missing=True, ignore_extra=True)
     Net.collect_params().reset_ctx(cfg.ctx)
 
     trainers = []
@@ -199,7 +200,7 @@ def train_pcbrpp(cfg, logprint=print):
         if cfg.partnum is not None:
             Fea2 = ndarray.concat(*Fea2, dim=-1)
         return None, Fea1+Fea2
-        
+
     def train_process(sample):
         data, label = sample
         data = data.as_in_context(cfg.ctx)
@@ -224,12 +225,14 @@ def train_pcbrpp(cfg, logprint=print):
                 for metric, id_ in zip(train_accuracy_metrics, state['output']):
                     metric.update(preds=id_, labels=label)
             else:
-                train_accuracy_metric.update(preds=state['output'], labels=label)
+                train_accuracy_metric.update(
+                    preds=state['output'], labels=label)
         else:
             img, cam, label, ds = state['sample']
             if cfg.feature_norm:
                 fnorm = ndarray.power(state['output'], 2)
-                fnorm = ndarray.sqrt(ndarray.sum(fnorm, axis=-1, keepdims=True))
+                fnorm = ndarray.sqrt(ndarray.sum(
+                    fnorm, axis=-1, keepdims=True))
                 state['output'] = state['output'] / fnorm
             reid_metric.update(state['output'], cam, label, ds)
 
@@ -252,7 +255,7 @@ def train_pcbrpp(cfg, logprint=print):
                 processor.test(test_process, test_iterator())
                 CMC, mAP = reid_metric.get()[1]
                 logprint("[Epoch %d] CMC1: %.2f%% CMC5: %.2f%% CMC10: %.2f%% CMC20: %.2f%% mAP: %.2f%%" %
-                        (state['epoch'], CMC[0]*100, CMC[4]*100, CMC[9]*100, CMC[19]*100, mAP*100))
+                         (state['epoch'], CMC[0]*100, CMC[4]*100, CMC[9]*100, CMC[19]*100, mAP*100))
                 if state['epoch'] % cfg.snap_epochs == 0:
                     net_saver.save(Net, CMC[0])
 
