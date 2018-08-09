@@ -208,11 +208,9 @@ def train_pcbrpp(cfg, logprint=print):
         with autograd.record():
             with autograd.record(train_mode=cfg.base_train):
                 x = Net.base_forward(data)
-                print(x)
             if cfg.withpcb:
                 with autograd.record(train_mode=cfg.rpp_train):
                     x = Net.split_forward(data)
-                    print(x)
             with autograd.record(train_mode=cfg.tail_train):
                 ID, Fea = Net.tail_forward(x)
             # ID, Fea = Net(data)
