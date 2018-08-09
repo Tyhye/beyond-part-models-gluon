@@ -104,10 +104,10 @@ class PCBRPPNet(HybridBlock):
         # feature weight share or not
         if self.feature_weight_share:
             feas = [self.feature(x) for x in xs]
-            IDs = [self.classifier(x) for x in xs]
+            IDs = [self.classifier(x) for x in feas]
         else:
             feas = [getattr(self, 'feature%d' % (pn+1))(x)
                     for (x, pn) in zip(xs, range(self.partnum))]
             IDs = [getattr(self, 'classifier%d' % (pn+1))(x)
-                   for (x, pn) in zip(xs, range(self.partnum))]
+                   for (x, pn) in zip(feas, range(self.partnum))]
         return IDs, feas
