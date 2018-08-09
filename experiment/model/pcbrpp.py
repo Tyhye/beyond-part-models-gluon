@@ -115,7 +115,7 @@ class PCBRPPNet(HybridBlock):
         return IDs, feas
     
     def base_forward(self, x):
-        self.conv(x)
+        x = self.conv(x)
         return x
 
     def split_forward(self, x):
