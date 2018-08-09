@@ -104,14 +104,14 @@ def train_pcbrpp(cfg, logprint=print):
         tail_params = ParameterDict()
         if (not cfg.withpcb) or cfg.feature_weight_share:
             tail_params.update(Net.feature.collect_params())
-            tail_params.update(Net.feature_.collect_params())
+            # tail_params.update(Net.feature_.collect_params())
             tail_params.update(Net.classifier.collect_params())
         else:
             for pn in range(cfg.partnum):
                 tail_params.update(
                     getattr(Net, 'feature%d' % (pn+1)).collect_params())
-                tail_params.update(
-                    getattr(Net, 'feature%d_' % (pn+1)).collect_params())
+                # tail_params.update(
+                #     getattr(Net, 'feature%d_' % (pn+1)).collect_params())
                 tail_params.update(
                     getattr(Net, 'classifier%d' % (pn+1)).collect_params())
         tail_optimizer_params = {'learning_rate': cfg.tail_learning_rate,
