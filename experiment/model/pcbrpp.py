@@ -66,13 +66,13 @@ class PCBRPPNet(HybridBlock):
                 tmp_feature = nn.Dense(feature_channels, activation=None,
                                        use_bias=False, flatten=True)
                 tmp_feature_ = nn.HybridSequential(prefix='')
-                with tmp_feature_.name_scope():
-                    tmp_feature_.add(nn.BatchNorm())
-                    tmp_feature_.add(nn.LeakyReLU(alpha=0.1))
-                tmp_feature_.hybridize()
+                # with tmp_feature_.name_scope():
+                #     tmp_feature_.add(nn.BatchNorm())
+                #     tmp_feature_.add(nn.LeakyReLU(alpha=0.1))
+                # tmp_feature_.hybridize()
                 tmp_classifier = nn.Dense(classes, use_bias=False)
                 tmp_feature.collect_params().initialize(init=init.Xavier(), ctx=cpu())
-                tmp_feature_.collect_params().initialize(init=init.Zero(), ctx=cpu())
+                # tmp_feature_.collect_params().initialize(init=init.Zero(), ctx=cpu())
                 tmp_classifier.collect_params().initialize(init=init.Normal(0.001), ctx=cpu())
                 setattr(self, 'feature%d' % (pn+1), tmp_feature)
                 setattr(self, 'feature%d_' % (pn+1), tmp_feature_)
@@ -120,8 +120,9 @@ class PCBRPPNet(HybridBlock):
         else:
             feas = [getattr(self, 'feature%d' % (pn+1))(x)
                     for (x, pn) in zip(xs, range(self.partnum))]
-            xs = [getattr(self, 'feature%d_' % (pn+1))(fea)
-                  for (fea, pn) in zip(feas, range(self.partnum))]
+            # xs = [getattr(self, 'feature%d_' % (pn+1))(fea)
+            #       for (fea, pn) in zip(feas, range(self.partnum))]
+            xs = feas
             IDs = [getattr(self, 'classifier%d' % (pn+1))(x)
                    for (x, pn) in zip(xs, range(self.partnum))]
         return IDs, feas
