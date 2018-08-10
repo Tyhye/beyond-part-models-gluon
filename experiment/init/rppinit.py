@@ -23,7 +23,6 @@ class RPP_Init(Initializer):
         self.sigma = sigma
 
     def _init_weight(self, _, arr):
-        print(arr)
-        input()
-        random.normal(self.mean, self.sigma, arr[0])
-        arr[...] = arr[0].repeat(repeats=arr.size[0], axis=0)
+        tmparray = arr[0].copy()
+        random.normal(self.mean, self.sigma, tmparray)
+        arr[...] = tmparray.repeat(repeats=arr.size[0], axis=0)
