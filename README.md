@@ -31,12 +31,12 @@ Here we just show some results.
 | 32 | Resnet50_v2 | w/o | | w/o | | 91.75 | 96.59 | 98.22 | 77.68 | |
 | 32 | Resnet50_v1 | w/o | | w/o | | 88.39 | 94.80 | 96.76 | 71.78 | |
 | 64 | Resnet50_v2 | w | 6 | w/o | | 92.3 | 97.2 | 98.2 | 77.4 | (in paper) |
-| 32 | Resnet50_v2 | w | 6 | w/o | | 92.34 | 96.73 | 97.86 | 76.93 | |
+| 32 | Resnet50_v2 | w | 6 | w/o | | 92.61 | 96.82 | 97.74 | 77.33 | |
 | 32 | Resnet50_v1 | w | 6 | w/o | | - | - | - | - | |
-| 32 | Resnet50_v2 | w | 6 | w | no | - | - | - | - | |
+| 32 | Resnet50_v2 | w | 6 | w | no | 91.66 | 96.59 | 97.86 | 76.83 | |
 | 32 | Resnet50_v1 | w | 6 | w | no | - | - | - | - | |
 | 64 | Resnet50_v2 | w | 6 | w | yes | 93.8 | 97.5 | 98.5 | 81.6 | (in paper) |
-| 32 | Resnet50_v2 | w | 6 | w | yes | - | - | - | - | |
+| 32 | Resnet50_v2 | w | 6 | w | yes | 92.64 | 96.97 | 98.01 | 77.09 | (processing) |
 | 32 | Resnet50_v1 | w | 6 | w | yes | - | - | - | - | |
 
 ## Usage
