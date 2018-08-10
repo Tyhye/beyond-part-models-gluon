@@ -71,9 +71,11 @@ class PCBRPPNet(HybridBlock):
                 setattr(self, 'classifier%d' % (pn+1), tmp_classifier)
 
         if self.withrpp:
+            from ..init.rppinit import RPP_Init
+            rpp_init = RPP_Init(mean=0.0, sigma=0.001)
             self.rppscore = nn.Conv2D(
                 self.partnum, kernel_size=1, use_bias=False)
-            self.rppscore.collect_params().initialize(init=init.Normal(0.001), ctx=cpu())
+            self.rppscore.collect_params().initialize(init=rpp_init, ctx=cpu())
                 
 
     def hybrid_forward(self, F, x):
