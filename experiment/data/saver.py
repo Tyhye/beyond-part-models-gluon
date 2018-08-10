@@ -10,7 +10,21 @@
 import mxnet
 import os
 
-
+class Normal_Saver(object):
+    
+    def __init__(self, save_dir, save_name=None):
+        self.save_dir = save_dir
+        self.save_name = save_name
+        
+    def save(self, net, new_evaluation):
+        if self.save_name is None:
+            fname = os.path.join(
+                self.save_dir, '%.4f.params' % (new_evaluation))
+        else:
+            fname = os.path.join(self.save_dir, '%s_%.4f.params' % (
+                self.save_name, new_evaluation))
+        net.save_params(fname)
+        
 class Best_Evaluation_Saver(object):
 
     def __init__(self, save_dir, save_name=None, reverse=False):

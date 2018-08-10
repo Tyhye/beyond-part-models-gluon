@@ -25,7 +25,7 @@ from mxnet.metric import Loss, Accuracy
 
 from .data.transform import ListTransformer, Market1501_Transformer
 from .data.textdataset import TextDataset
-from .data.saver import Best_Evaluation_Saver
+from .data.saver import Best_Evaluation_Saver, Normal_Saver
 from .model.pcbrpp import PCBRPPNet
 from .scheduler.listscheduler import MultiStepListScheduler
 from .process.epochprocessor import EpochProcessor
@@ -157,9 +157,10 @@ def train_pcbrpp(cfg, logprint=print):
             save_name = "WITHRPP_%dPart" % (cfg.partnum)
     if cfg.withpcb and cfg.feature_weight_share:
         save_name += "_FEASHARE"
-    net_saver = Best_Evaluation_Saver(save_dir=cfg.snapdir,
-                                      save_name=save_name,
-                                      reverse=False)
+    # net_saver = Best_Evaluation_Saver(save_dir=cfg.snapdir,
+    #                                   save_name=save_name,
+    #                                   reverse=False)
+    net_saver = Normal_Saver(save_dir=cfg.snapdir, save_name=save_name)
     # ==========================================================================
     logprint(Net)
     # ==========================================================================
