@@ -38,30 +38,30 @@ def train_pcbrpp(cfg, logprint=print):
     # ==========================================================================
     # define train dataset, query dataset and test dataset
     # ==========================================================================
-    traintransformer = ListTransformer(datasetroot=cfg.trainIMpath,
+    traintransformer = ListTransformer(datasetroot=cfg.train_data_root,
                                        resize_size=cfg.resize_size,
                                        crop_size=cfg.crop_size,
                                        istrain=True)
-    querytransformer = Market1501_Transformer(datasetroot=cfg.queryIMpath,
+    querytransformer = Market1501_Transformer(datasetroot=cfg.query_data_root,
                                               resize_size=cfg.resize_size,
                                               crop_size=cfg.crop_size,
                                               istrain=False)
-    gallerytransformer = Market1501_Transformer(datasetroot=cfg.queryIMpath,
+    gallerytransformer = Market1501_Transformer(datasetroot=cfg.gallery_data_root,
                                                 resize_size=cfg.resize_size,
                                                 crop_size=cfg.crop_size,
                                                 istrain=False)
-    traindataset = TextDataset(txtfilepath=cfg.trainList,
+    traindataset = TextDataset(txtfilepath=cfg.train_list,
                                transform=traintransformer)
-    querydataset = TextDataset(txtfilepath=cfg.queryList,
+    querydataset = TextDataset(txtfilepath=cfg.query_list,
                                transform=querytransformer)
-    gallerydataset = TextDataset(txtfilepath=cfg.galleryList,
+    gallerydataset = TextDataset(txtfilepath=cfg.gallery_list,
                                  transform=gallerytransformer)
     train_iterator = DataLoader(traindataset, num_workers=1, shuffle=True,
-                                last_batch='discard', batch_size=cfg.batchsize)
+                                last_batch='discard', batch_size=cfg.batch_size)
     query_iterator = DataLoader(querydataset, num_workers=1, shuffle=True,
-                                last_batch='keep', batch_size=cfg.batchsize)
+                                last_batch='keep', batch_size=cfg.batch_size)
     gallery_iterator = DataLoader(gallerydataset, num_workers=1, shuffle=True,
-                                  last_batch='keep', batch_size=cfg.batchsize)
+                                  last_batch='keep', batch_size=cfg.batch_size)
 
     def test_iterator():
         for data in tqdm(query_iterator, ncols=80):
@@ -157,10 +157,10 @@ def train_pcbrpp(cfg, logprint=print):
             save_name = "WITHRPP_%dPart" % (cfg.partnum)
     if cfg.withpcb and cfg.feature_weight_share:
         save_name += "_FEASHARE"
-    # net_saver = Best_Evaluation_Saver(save_dir=cfg.snapdir,
+    # net_saver = Best_Evaluation_Saver(save_dir=cfg.snap_dir,
     #                                   save_name=save_name,
     #                                   reverse=False)
-    net_saver = Normal_Saver(save_dir=cfg.snapdir, save_name=save_name)
+    net_saver = Normal_Saver(save_dir=cfg.snap_dir, save_name=save_name)
     # ==========================================================================
     logprint(Net)
     # ==========================================================================

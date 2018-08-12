@@ -38,31 +38,31 @@ Network Options:
     --pretrain_path=<str>       Path to pretrained model. 
 
 Training Setting Options:
-    --Optim=<str>               Optimizer Type [default: sgd]
-    --LRpolicy=<str>            Learning rate policy [default: multistep]
+    --optim=<str>               Optimizer Type [default: sgd]
+    --lr_policy=<str>           Learning rate policy [default: multistep]
     --milestones=<list>         Step milestone for multistep policy [default: [40,]]
     --gamma=<float>             Gamma for multistep policy [default: 0.1]
     
     --max_epochs=<int>          Max Train epochs [default: 60]
     --val_epochs=<int>          Val step stone [default: 5]
     --snap_epochs=<int>         Snap step stone [default: 5]
-    --Snap=<str>                Model state dict file path [default: saved/]
+    --snap_dir=<str>            Model state dict file path [default: saved/]
 
 Data Options:
     --resize_size=<tuple>       Image resize size tuple (width, height) [default: (128, 384)]
     --crop_size=<tuple>         Image crop size tuple (width, height) [default: (128, 384)]
-    --batchsize=<int>           Batchsize [default: 32]
+    --batch_size=<int>          Batchsize [default: 32]
     --feature_norm              If the feature are normalized when testing.
 
 Train Data Options:
-    --trainList=<str>           Train files list txt [default: datas/Market1501/train.txt]
-    --trainIMpath=<str>         Train sketch images path prefix [default: datas/Market1501/]
+    --train_list=<str>          Train files list txt [default: datas/Market1501/train.txt]
+    --train_data_root=<str>     Train sketch images path prefix [default: datas/Market1501/]
     
 Test Data Options:
-    --queryList=<str>           Query files list txt [default: datas/Market1501/query.txt]
-    --queryIMpath=<str>         Query sketch images path prefix [default: datas/Market1501/]
-    --galleryList=<str>         Gallery files list txt [default: datas/Market1501/gallery.txt]
-    --galleryIMpath=<str>       Gallery sketch images path prefix [default: datas/Market1501/]
+    --query_list=<str>          Query files list txt [default: datas/Market1501/query.txt]
+    --query_data_root=<str>     Query sketch images path prefix [default: datas/Market1501/]
+    --gallery_list=<str>        Gallery files list txt [default: datas/Market1501/gallery.txt]
+    --gallery_data_root=<str>   Gallery sketch images path prefix [default: datas/Market1501/]
     
 Learning Rate Options:
     --learning_rate=<float>     Learning rate for training process [default: 0.01]
@@ -123,11 +123,11 @@ def main():
     cfg.base_pretrained =  (not args['--base_not_pretrained']) and (args['--pretrain_path'] is None)
     cfg.pretrain_path = args['--pretrain_path']
 
-    cfg.optim = args['--Optim']
+    cfg.optim = args['--optim']
     if cfg.optim == 'sgd':
         cfg.momentum = float(args['--momentum'])
-    cfg.lrpolicy = args['--LRpolicy']
-    if cfg.lrpolicy == "multistep" or cfg.lrpolicy == "multifactor":
+    cfg.lr_policy = args['--lr_policy']
+    if cfg.lr_policy == "multistep" or cfg.lr_policy == "multifactor":
         cfg.milestones = eval(args['--milestones'])
         cfg.gamma = float(args['--gamma'])
 
@@ -136,9 +136,9 @@ def main():
     cfg.snap_epochs = int(args['--snap_epochs'])
     if cfg.snap_epochs % cfg.val_epochs != 0:
         raise "Because the saver should use the val result, so the snap_epochs must be times of val_epochs"
-    cfg.snapdir = args['--Snap']
-    if not os.path.exists(cfg.snapdir):
-        os.makedirs(cfg.snapdir)
+    cfg.snap_dir = args['--snap']
+    if not os.path.exists(cfg.snap_dir):
+        os.makedirs(cfg.snap_dir)
     
     cfg.batchsize = int(args['--batchsize'])
     cfg.resize_size = eval(args['--resize_size'])
@@ -169,12 +169,12 @@ def main():
     else:
         cfg.rpp_train = cfg.base_train
 
-    cfg.trainList=args['--trainList']
-    cfg.trainIMpath=args['--trainIMpath']
-    cfg.queryList=args['--queryList']
-    cfg.queryIMpath=args['--queryIMpath']
-    cfg.galleryList=args['--galleryList']
-    cfg.galleryIMpath=args['--galleryIMpath']
+    cfg.train_list=args['--train_list']
+    cfg.train_data_root =args['--train_data_root']
+    cfg.query_list=args['--query_list']
+    cfg.query_data_root=args['--query_data_root']
+    cfg.gallery_list=args['--gallery_list']
+    cfg.gallery_data_root=args['--gallery_data_root']
 
     from experiment.train_pcbrpp import train_pcbrpp
     train_pcbrpp(cfg, logprint)
