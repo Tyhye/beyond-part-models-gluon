@@ -60,7 +60,7 @@ class PCBRPPNet(HybridBlock):
                 self.feature.add(nn.BatchNorm())
                 self.feature.add(nn.LeakyReLU(alpha=0.1))
             self.feature.hybridize()
-            self.classifier = nn.Dense(classes, use_bias=False)
+            self.classifier = nn.Dense(classes)
             self.feature.collect_params().initialize(init=init.Xavier(), ctx=cpu())
             self.classifier.collect_params().initialize(init=init.Normal(0.001), ctx=cpu())
         else:
@@ -75,7 +75,7 @@ class PCBRPPNet(HybridBlock):
                     bn.collect_params().initialize(init=init.Zero(), ctx=cpu())
                     tmp_feature.add(bn)    
                 tmp_feature.hybridize()                
-                tmp_classifier = nn.Dense(classes, use_bias=False)
+                tmp_classifier = nn.Dense(classes)
                 tmp_classifier.collect_params().initialize(init=init.Normal(0.001), ctx=cpu())
                 setattr(self, 'feature%d' % (pn+1), tmp_feature)
                 setattr(self, 'classifier%d' % (pn+1), tmp_classifier)
@@ -83,6 +83,7 @@ class PCBRPPNet(HybridBlock):
         if self.withrpp:
             # from ..init.rppinit import RPP_Init
             # rpp_init = RPP_Init(mean=0.0, sigma=0.001)
+            self.avgpool = nn.GlobalAvgPool2D()
             self.rppscore = nn.Conv2D(
                 self.partnum, kernel_size=1, use_bias=False)
             self.rppscore.collect_params().initialize(init=init.One(), ctx=cpu())
@@ -132,6 +133,8 @@ class PCBRPPNet(HybridBlock):
 
     def split_forward(self, x):
         if self.withrpp:
+            center = self.avgpool(x)
+            x = x - center
             rppscore = self.rppscore(x)
             rppscore = rppscore.softmax(axis=1)
             rppscores = rppscore.split(num_outputs=self.partnum, axis=1)
