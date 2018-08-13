@@ -107,6 +107,8 @@ class PCBRPPNet(HybridBlock):
         # w or w/o rpp
         # ======================================================================
         if self.withrpp:
+            center = self.avgpool(x)
+            x = x - center
             rppscore = self.rppscore(x)
             rppscore = rppscore.softmax(axis=1)
             rppscores = rppscore.split(num_outputs=self.partnum, axis=1)
