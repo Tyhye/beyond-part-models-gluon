@@ -49,7 +49,7 @@ class PCBRPPNet(HybridBlock):
         if not self.withpcb:
             self.pool = nn.GlobalAvgPool2D()
         else:
-            self.pool = nn.GlobalMaxPool2d()
+            self.pool = nn.GlobalMaxPool2D()
         self.dropout = nn.Dropout(rate=0.5)
 
         if not self.withpcb or self.feature_weight_share:
