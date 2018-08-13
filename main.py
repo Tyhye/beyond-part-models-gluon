@@ -140,7 +140,7 @@ def main():
     if not os.path.exists(cfg.snap_dir):
         os.makedirs(cfg.snap_dir)
     
-    cfg.batchsize = int(args['--batchsize'])
+    cfg.batch_size = int(args['--batch_size'])
     cfg.resize_size = eval(args['--resize_size'])
     cfg.crop_size = eval(args['--crop_size'])
     cfg.feature_norm = args['--feature_norm']
