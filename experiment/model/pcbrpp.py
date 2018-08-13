@@ -70,7 +70,7 @@ class PCBRPPNet(HybridBlock):
                     fea = nn.Dense(feature_channels, activation=None,
                                        use_bias=False, flatten=True)
                     fea.collect_params().initialize(init=init.Xavier(), ctx=cpu())
-                    # tmp_feature.add(fea)
+                    tmp_feature.add(fea)
                     # bn = nn.BatchNorm()
                     # bn.collect_params().initialize(init=init.Zero(), ctx=cpu())
                     # tmp_feature.add(bn)    
