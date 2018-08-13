@@ -45,8 +45,11 @@ class PCBRPPNet(HybridBlock):
                                 laststride=laststride, ctx=cpu())
         if not pretrained:
             self.conv.collect_params().initialize(init=init.Xavier(), ctx=cpu())
-
-        self.pool = nn.GlobalAvgPool2D()
+        
+        if not self.withpcb:
+            self.pool = nn.GlobalAvgPool2D()
+        else:
+            self.pool = nn.GlobalMaxPool2d()
         self.dropout = nn.Dropout(rate=0.5)
 
         if not self.withpcb or self.feature_weight_share:
@@ -62,10 +65,17 @@ class PCBRPPNet(HybridBlock):
             self.classifier.collect_params().initialize(init=init.Normal(0.001), ctx=cpu())
         else:
             for pn in range(self.partnum):
-                tmp_feature = nn.Dense(feature_channels, activation=None,
+                tmp_feature = nn.HybridSequential()
+                with tmp_feature.name_scope():
+                    fea = nn.Dense(feature_channels, activation=None,
                                        use_bias=False, flatten=True)
+                    fea.collect_params().initialize(init=init.Xavier(), ctx=cpu())
+                    tmp_feature.add(fea)
+                    bn = nn.BatchNorm()
+                    bn.collect_params().initialize(init=init.Zero(), ctx=cpu())
+                    tmp_feature.add(bn)    
+                tmp_feature.hybridize()                
                 tmp_classifier = nn.Dense(classes, use_bias=False)
-                tmp_feature.collect_params().initialize(init=init.Xavier(), ctx=cpu())
                 tmp_classifier.collect_params().initialize(init=init.Normal(0.001), ctx=cpu())
                 setattr(self, 'feature%d' % (pn+1), tmp_feature)
                 setattr(self, 'classifier%d' % (pn+1), tmp_classifier)
