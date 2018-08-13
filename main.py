@@ -136,7 +136,7 @@ def main():
     cfg.snap_epochs = int(args['--snap_epochs'])
     if cfg.snap_epochs % cfg.val_epochs != 0:
         raise "Because the saver should use the val result, so the snap_epochs must be times of val_epochs"
-    cfg.snap_dir = args['--snap']
+    cfg.snap_dir = args['--snap_dir']
     if not os.path.exists(cfg.snap_dir):
         os.makedirs(cfg.snap_dir)
     
